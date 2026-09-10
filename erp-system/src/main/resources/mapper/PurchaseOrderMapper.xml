@@ -13,8 +13,10 @@
     </resultMap>
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO purchase_order (order_no, supplier_id, warehouse_id, total_amount, status, purchaser_id, order_date, remark)
-        VALUES (#{orderNo}, #{supplierId}, #{warehouseId}, #{totalAmount}, #{status}, #{purchaserId}, #{orderDate}, #{remark})
+        INSERT INTO purchase_order (order_no, supplier_id, warehouse_id, total_amount, status, purchaser_id, order_date, remark,
+                                    company_id, delivery_method, is_tax_included, tax_rate, tax_amount, untaxed_amount, invoice_done)
+        VALUES (#{orderNo}, #{supplierId}, #{warehouseId}, #{totalAmount}, #{status}, #{purchaserId}, #{orderDate}, #{remark},
+                #{companyId}, #{deliveryMethod}, #{isTaxIncluded}, #{taxRate}, #{taxAmount}, #{untaxedAmount}, #{invoiceDone})
     </insert>
 
     <update id="updateOrder">
@@ -26,6 +28,13 @@
             <if test="status != null">status = #{status},</if>
             <if test="orderDate != null">order_date = #{orderDate},</if>
             <if test="remark != null">remark = #{remark},</if>
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="deliveryMethod != null">delivery_method = #{deliveryMethod},</if>
+            <if test="isTaxIncluded != null">is_tax_included = #{isTaxIncluded},</if>
+            <if test="taxRate != null">tax_rate = #{taxRate},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="untaxedAmount != null">untaxed_amount = #{untaxedAmount},</if>
+            <if test="invoiceDone != null">invoice_done = #{invoiceDone},</if>
             updated_at = CURRENT_TIMESTAMP
         </set>
         WHERE id = #{id}
@@ -95,17 +104,22 @@
     </select>
 
     <sql id="Base_Column_List">
-        po.id, po.order_no, po.supplier_id, s.supplier_name, po.warehouse_id, po.total_amount, po.status, po.purchaser_id, po.order_date, po.remark, po.created_at
+        po.id, po.order_no, po.supplier_id, s.supplier_name, po.warehouse_id, po.total_amount, po.status, po.purchaser_id, po.order_date, po.remark, po.created_at,
+        po.company_id, po.delivery_method, po.is_tax_included, po.tax_rate, po.tax_amount, po.untaxed_amount, po.invoice_done
     </sql>
 
     <select id="selectList" resultType="com.example.erpsystem.dto.PurchaseOrderDTO">
         SELECT
         po.id, po.order_no, po.supplier_id, s.supplier_name,
         po.warehouse_id, po.total_amount, po.status, po.purchaser_id,
-        po.order_date, po.remark, po.created_at
+        po.order_date, po.remark, po.created_at,
+        po.company_id, po.delivery_method, po.is_tax_included, po.tax_rate, po.tax_amount, po.untaxed_amount, po.invoice_done
         FROM purchase_order po
         LEFT JOIN supplier s ON po.supplier_id = s.id
         WHERE 1=1
+        <if test="companyId != null">
+            AND po.company_id = #{companyId}
+        </if>
         <if test="orderNo != null and orderNo != ''">
             AND po.order_no LIKE CONCAT('%', #{orderNo}, '%')
         </if>
@@ -116,6 +130,9 @@
     <select id="selectCount" resultType="int">
         SELECT COUNT(*) FROM purchase_order po
         WHERE 1=1
+        <if test="companyId != null">
+            AND po.company_id = #{companyId}
+        </if>
         <if test="orderNo != null and orderNo != ''">
             AND po.order_no LIKE CONCAT('%', #{orderNo}, '%')
         </if>
@@ -126,7 +143,9 @@
         SELECT
             po.id, po.order_no, po.supplier_id, s.supplier_name,
             po.warehouse_id, po.total_amount, po.status, po.purchaser_id,
-            po.order_date, po.remark, po.created_at
+            po.order_date, po.remark, po.created_at,
+            po.company_id, po.delivery_method, po.is_tax_included, po.tax_rate,
+            po.tax_amount, po.untaxed_amount, po.invoice_done
         FROM purchase_order po
                  LEFT JOIN supplier s ON po.supplier_id = s.id
         WHERE po.id = #{id}

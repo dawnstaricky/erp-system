@@ -22,4 +22,7 @@ public interface SysUserCompanyRoleMapper {
 
     /** 取某用户可进入的公司列表（带公司名称） */
     List<SysUserCompanyRole> selectCompaniesByUser(@Param("userId") Long userId);
+
+    /** 取某用户可进入的公司及其角色 code 集合（用于登录返回） */
+    List<Map<String, Object>> selectCompanyRolesByUserId(@Param("userId") Long userId);
 }

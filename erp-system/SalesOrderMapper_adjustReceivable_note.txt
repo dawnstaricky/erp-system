@@ -1,6 +1,0 @@
--- 质量异议减免应收：需在 SalesOrderMapper 增加 adjustReceivable 方法
--- <update id="adjustReceivable">
---   UPDATE sales_order
---   SET paid_amount = paid_amount + #{amount}   -- amount 为负数即减免
---   WHERE id = #{orderId}
--- </update>

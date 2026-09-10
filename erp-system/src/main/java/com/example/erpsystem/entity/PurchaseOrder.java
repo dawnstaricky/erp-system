@@ -23,4 +23,20 @@ public class PurchaseOrder {
     private String remark;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // ===== 多公司隔离 & 单据扩展字段（功能说明） =====
+    /** 所属公司ID */
+    private Long companyId;
+    /** 交货方式：自提 / 送货 */
+    private String deliveryMethod;
+    /** 是否含税 */
+    private Boolean isTaxIncluded;
+    /** 税率（如 13.00） */
+    private BigDecimal taxRate;
+    /** 税额 */
+    private BigDecimal taxAmount;
+    /** 无税金额 */
+    private BigDecimal untaxedAmount;
+    /** 是否已全额开票：0-否 1-是 */
+    private Integer invoiceDone;
 }

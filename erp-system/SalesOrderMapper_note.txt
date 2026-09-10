@@ -1,2 +1,0 @@
--- 04 SQL 中已为 sales_order 增加 paid_amount/unpaid_amount
--- InvoiceService 依赖 SalesOrderMapper.selectById —— 沿用现有 Mapper，无需新增方法

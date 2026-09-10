@@ -20,6 +20,13 @@
         <result column="supplier_id" property="supplierId"/>
         <result column="shelf_life" property="shelfLife"/>
         <result column="storage_location" property="storageLocation"/>
+        <result column="hardness" property="hardness"/>
+        <result column="tin_layer" property="tinLayer"/>
+        <result column="coil_no" property="coilNo"/>
+        <result column="steel_mill" property="steelMill"/>
+        <result column="grade" property="grade"/>
+        <result column="stock_in_date" property="stockInDate"/>
+        <result column="company_id" property="companyId"/>
         <result column="status" property="status"/>
         <result column="remark" property="remark"/>
         <result column="created_at" property="createdAt"/>
@@ -45,11 +52,13 @@
         INSERT INTO product (
             sku_code, product_name, mnemonic_code, category_id, spec, model,
             unit, barcode, cost_price, sale_price, min_stock, max_stock,
-            supplier_id, shelf_life, storage_location, status, remark
+            supplier_id, shelf_life, storage_location, status, remark,
+            hardness, tin_layer, coil_no, steel_mill, grade, stock_in_date, company_id
         ) VALUES (
                      #{skuCode}, #{productName}, #{mnemonicCode}, #{categoryId}, #{spec}, #{model},
                      #{unit}, #{barcode}, #{costPrice}, #{salePrice}, #{minStock}, #{maxStock},
-                     #{supplierId}, #{shelfLife}, #{storageLocation}, #{status}, #{remark}
+                     #{supplierId}, #{shelfLife}, #{storageLocation}, #{status}, #{remark},
+                     #{hardness}, #{tinLayer}, #{coilNo}, #{steelMill}, #{grade}, #{stockInDate}, #{companyId}
                  )
     </insert>
 
@@ -72,6 +81,13 @@
             <if test="supplierId != null">supplier_id = #{supplierId},</if>
             <if test="shelfLife != null">shelf_life = #{shelfLife},</if>
             <if test="storageLocation != null">storage_location = #{storageLocation},</if>
+            <if test="hardness != null">hardness = #{hardness},</if>
+            <if test="tinLayer != null">tin_layer = #{tinLayer},</if>
+            <if test="coilNo != null">coil_no = #{coilNo},</if>
+            <if test="steelMill != null">steel_mill = #{steelMill},</if>
+            <if test="grade != null">grade = #{grade},</if>
+            <if test="stockInDate != null">stock_in_date = #{stockInDate},</if>
+            <if test="companyId != null">company_id = #{companyId},</if>
             <if test="remark != null">remark = #{remark},</if>
             updated_at = CURRENT_TIMESTAMP
         </set>
@@ -87,5 +103,10 @@
     <update id="deleteById">
         UPDATE product SET status = 0, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}
     </update>
+
+    <!-- 根据 SKU 编码查询 -->
+    <select id="selectBySkuCode" resultMap="BaseResultMap">
+        SELECT * FROM product WHERE sku_code = #{skuCode} LIMIT 1
+    </select>
 
 </mapper>

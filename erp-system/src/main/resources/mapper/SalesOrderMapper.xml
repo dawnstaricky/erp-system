@@ -13,8 +13,10 @@
     </resultMap>
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO sales_order (order_no, customer_id, warehouse_id, total_amount, status, salesman_id, order_date, remark)
-        VALUES (#{orderNo}, #{customerId}, #{warehouseId}, #{totalAmount}, #{status}, #{salesmanId}, #{orderDate}, #{remark})
+        INSERT INTO sales_order (order_no, customer_id, warehouse_id, total_amount, status, salesman_id, order_date, remark,
+                                 company_id, delivery_method, is_tax_included, tax_rate, tax_amount, untaxed_amount, paid_amount, unpaid_amount)
+        VALUES (#{orderNo}, #{customerId}, #{warehouseId}, #{totalAmount}, #{status}, #{salesmanId}, #{orderDate}, #{remark},
+                #{companyId}, #{deliveryMethod}, #{isTaxIncluded}, #{taxRate}, #{taxAmount}, #{untaxedAmount}, #{paidAmount}, #{unpaidAmount})
     </insert>
 
     <update id="updateOrder">
@@ -26,6 +28,16 @@
             <if test="status != null">status = #{status},</if>
             <if test="orderDate != null">order_date = #{orderDate},</if>
             <if test="remark != null">remark = #{remark},</if>
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="deliveryMethod != null">delivery_method = #{deliveryMethod},</if>
+            <if test="isTaxIncluded != null">is_tax_included = #{isTaxIncluded},</if>
+            <if test="taxRate != null">tax_rate = #{taxRate},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="untaxedAmount != null">untaxed_amount = #{untaxedAmount},</if>
+            <if test="paidAmount != null">paid_amount = #{paidAmount},</if>
+            <if test="unpaidAmount != null">unpaid_amount = #{unpaidAmount},</if>
+            <if test="invoiceDone != null">invoice_done = #{invoiceDone},</if>
+            <if test="receiptDone != null">receipt_done = #{receiptDone},</if>
             updated_at = CURRENT_TIMESTAMP
         </set>
         WHERE id = #{id}
@@ -91,16 +103,22 @@
     </select>
 
     <sql id="Base_Column_List">
-        so.id, so.order_no, so.customer_id, c.customer_name, so.warehouse_id, so.total_amount, so.status, so.salesman_id, so.order_date, so.remark, so.created_at
+        so.id, so.order_no, so.customer_id, c.customer_name, so.warehouse_id, so.total_amount, so.status, so.salesman_id, so.order_date, so.remark, so.created_at,
+        so.company_id, so.delivery_method, so.is_tax_included, so.tax_rate, so.tax_amount, so.untaxed_amount, so.paid_amount, so.unpaid_amount, so.invoice_done, so.receipt_done
     </sql>
 
     <select id="selectList" resultType="com.example.erpsystem.dto.SalesOrderDTO">
         SELECT
         so.id, so.order_no, so.customer_id, c.customer_name, so.warehouse_id, so.total_amount,
-        so.status, so.salesman_id, so.order_date, so.remark, so.created_at
+        so.status, so.salesman_id, so.order_date, so.remark, so.created_at,
+        so.company_id, so.delivery_method, so.is_tax_included, so.tax_rate, so.tax_amount, so.untaxed_amount,
+        so.paid_amount, so.unpaid_amount, so.invoice_done, so.receipt_done
         FROM sales_order so
         LEFT JOIN customer c ON so.customer_id = c.id
         WHERE 1=1
+        <if test="companyId != null">
+            AND so.company_id = #{companyId}
+        </if>
         <if test="orderNo != null and orderNo != ''">
             AND so.order_no LIKE CONCAT('%', #{orderNo}, '%')
         </if>
@@ -112,6 +130,9 @@
         SELECT COUNT(*) FROM sales_order so
         LEFT JOIN customer c ON so.customer_id = c.id
         WHERE 1=1
+        <if test="companyId != null">
+            AND so.company_id = #{companyId}
+        </if>
         <if test="orderNo != null and orderNo != ''">
             AND so.order_no LIKE CONCAT('%', #{orderNo}, '%')
         </if>
@@ -131,7 +152,17 @@
             so.order_date,
             so.remark,
             so.created_at,
-            so.updated_at
+            so.updated_at,
+            so.company_id,
+            so.delivery_method,
+            so.is_tax_included,
+            so.tax_rate,
+            so.tax_amount,
+            so.untaxed_amount,
+            so.paid_amount,
+            so.unpaid_amount,
+            so.invoice_done,
+            so.receipt_done
         FROM sales_order so
                  LEFT JOIN customer c ON so.customer_id = c.id
         WHERE so.id = #{id}

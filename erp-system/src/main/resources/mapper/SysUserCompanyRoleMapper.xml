@@ -48,4 +48,20 @@
         WHERE ucr.user_id = #{userId}
         ORDER BY ucr.is_main DESC, ucr.company_id ASC
     </select>
+
+    <!-- 登录返回"可进入的公司列表"：每个公司一行，roleCodes 逗号分隔 -->
+    <select id="selectCompanyRolesByUserId" resultType="java.util.HashMap">
+        SELECT
+            c.id AS companyId,
+            c.company_name AS companyName,
+            ucr.is_main AS isMain,
+            GROUP_CONCAT(DISTINCT r.role_code ORDER BY r.role_code SEPARATOR ',') AS roleCodes
+        FROM sys_user_company_role ucr
+        INNER JOIN sys_company c ON ucr.company_id = c.id
+        INNER JOIN sys_role r ON ucr.role_id = r.id
+        WHERE ucr.user_id = #{userId}
+          AND c.status = 1
+        GROUP BY c.id, c.company_name, ucr.is_main
+        ORDER BY ucr.is_main DESC, c.id ASC
+    </select>
 </mapper>
