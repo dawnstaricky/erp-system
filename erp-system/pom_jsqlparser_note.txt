@@ -1,0 +1,6 @@
+<!-- 在 erp-system/pom.xml 的 <dependencies> 中新增（如已存在可忽略） -->
+<dependency>
+    <groupId>com.github.jsqlparser</groupId>
+    <artifactId>jsqlparser</artifactId>
+    <version>4.9</version>
+</dependency>
