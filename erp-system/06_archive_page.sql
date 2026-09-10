@@ -1,0 +1,6 @@
+-- BusinessArchiveMapper.xml 中 updateById 需修正 <set> 内 <where> 为无（已修正见 XML）
+-- 补充分页查询方法（若 01 SQL 未含）
+-- 在 BusinessArchiveMapper 增加：
+--   List<BusinessArchive> selectList(@Param("isArchived") Integer isArchived,
+--                                    @Param("offset") Integer offset,
+--                                    @Param("limit") Integer limit);
