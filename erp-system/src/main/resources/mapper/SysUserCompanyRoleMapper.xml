@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.SysUserCompanyRoleMapper">
+
+    <resultMap id="BaseMap" type="com.example.erpsystem.entity.SysUserCompanyRole">
+        <id     column="id"          property="id"/>
+        <result column="user_id"     property="userId"/>
+        <result column="company_id"  property="companyId"/>
+        <result column="role_id"     property="roleId"/>
+        <result column="is_main"     property="isMain"/>
+        <result column="created_at"  property="createdAt"/>
+        <result column="company_name" property="companyName"/>
+        <result column="role_code"   property="roleCode"/>
+        <result column="role_name"   property="roleName"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user_company_role (user_id, company_id, role_id, is_main)
+        VALUES (#{userId}, #{companyId}, #{roleId}, #{isMain})
+    </insert>
+
+    <delete id="deleteByUser">
+        DELETE FROM sys_user_company_role WHERE user_id = #{userId}
+    </delete>
+
+    <delete id="delete">
+        DELETE FROM sys_user_company_role WHERE id = #{id}
+    </delete>
+
+    <select id="selectByUser" resultMap="BaseMap">
+        SELECT * FROM sys_user_company_role WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectRoleCodes" resultType="java.lang.String">
+        SELECT DISTINCT r.role_code
+        FROM sys_user_company_role ucr
+        INNER JOIN sys_role r ON ucr.role_id = r.id
+        WHERE ucr.user_id = #{userId}
+          AND ucr.company_id = #{companyId}
+    </select>
+
+    <select id="selectCompaniesByUser" resultMap="BaseMap">
+        SELECT ucr.*, c.company_name, r.role_code, r.role_name
+        FROM sys_user_company_role ucr
+        INNER JOIN sys_company c ON ucr.company_id = c.id
+        INNER JOIN sys_role r ON ucr.role_id = r.id
+        WHERE ucr.user_id = #{userId}
+        ORDER BY ucr.is_main DESC, ucr.company_id ASC
+    </select>
+</mapper>
