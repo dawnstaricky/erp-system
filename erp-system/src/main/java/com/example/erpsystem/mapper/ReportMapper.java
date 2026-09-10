@@ -1,43 +1,39 @@
 package com.example.erpsystem.mapper;
 
-import com.example.erpsystem.dto.SalesReportDTO;
-import com.example.erpsystem.dto.ProductSalesRankDTO;
-import com.example.erpsystem.dto.CustomerSalesRankDTO;
-import com.example.erpsystem.dto.InventoryAnalysisDTO;
-import com.example.erpsystem.dto.DashboardDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import java.time.LocalDate;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ReportMapper {
 
-    // 销售日报（按天汇总）
-    List<SalesReportDTO> getSalesDaily(@Param("startDate") LocalDate startDate,
-                                       @Param("endDate") LocalDate endDate,
-                                       @Param("warehouseId") Long warehouseId);
+    /** 毛利报表 */
+    @Select("<script>" +
+            "SELECT so.customer_id, c.customer_name, p.id AS product_id, p.product_name, " +
+            "       SUM(soi.quantity) AS qty, " +
+            "       SUM(soi.quantity * soi.unit_price) AS sale_total, " +
+            "       SUM(soi.quantity * p.cost_price) AS cost_total, " +
+            "       SUM(soi.quantity * (soi.unit_price - p.cost_price)) AS gross_profit " +
+            "FROM sales_order so " +
+            "INNER JOIN sales_order_item soi ON so.id = soi.order_id " +
+            "INNER JOIN product p ON soi.product_id = p.id " +
+            "LEFT JOIN customer c ON so.customer_id = c.id " +
+            "<where> " +
+            "   <if test='companyId != null'>AND so.company_id = #{companyId}</if> " +
+            "   <if test='startDate != null'>AND so.created_at &gt;= #{startDate}</if> " +
+            "   <if test='endDate != null'>AND so.created_at &lt;= #{endDate}</if> " +
+            "</where> " +
+            "GROUP BY so.customer_id, p.id " +
+            "ORDER BY gross_profit DESC" +
+            "</script>")
+    List<Map<String, Object>> grossProfit(@Param("params") Map<String, Object> params);
 
-    // 销售月报（按月汇总）
-    List<SalesReportDTO> getSalesMonthly(@Param("startDate") LocalDate startDate,
-                                         @Param("endDate") LocalDate endDate,
-                                         @Param("warehouseId") Long warehouseId);
+    /** 开票回款台账（订单维度） */
+    List<Map<String, Object>> invoiceReceiptLedger(@Param("params") Map<String, Object> params);
 
-    // 商品销售排行
-    List<ProductSalesRankDTO> getProductSalesRank(@Param("startDate") LocalDate startDate,
-                                                  @Param("endDate") LocalDate endDate,
-                                                  @Param("warehouseId") Long warehouseId,
-                                                  @Param("limit") int limit);
-
-    // 客户销售排行
-    List<CustomerSalesRankDTO> getCustomerSalesRank(@Param("startDate") LocalDate startDate,
-                                                    @Param("endDate") LocalDate endDate,
-                                                    @Param("warehouseId") Long warehouseId,
-                                                    @Param("limit") int limit);
-
-    // 库存分析（含周转天数）
-    List<InventoryAnalysisDTO> getInventoryAnalysis(@Param("warehouseId") Long warehouseId);
-
-    // 仪表盘汇总
-    DashboardDTO getDashboard();
+    /** 月底对账汇总 */
+    List<Map<String, Object>> monthlyReconciliation(@Param("params") Map<String, Object> params);
 }
