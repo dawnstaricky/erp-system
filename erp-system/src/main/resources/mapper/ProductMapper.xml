@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.erpsystem.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.Product">
+        <id column="id" property="id"/>
+        <result column="sku_code" property="skuCode"/>
+        <result column="product_name" property="productName"/>
+        <result column="mnemonic_code" property="mnemonicCode"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="spec" property="spec"/>
+        <result column="model" property="model"/>
+        <result column="unit" property="unit"/>
+        <result column="barcode" property="barcode"/>
+        <result column="cost_price" property="costPrice"/>
+        <result column="sale_price" property="salePrice"/>
+        <result column="min_stock" property="minStock"/>
+        <result column="max_stock" property="maxStock"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="shelf_life" property="shelfLife"/>
+        <result column="storage_location" property="storageLocation"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <!-- 列表查询 -->
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT * FROM product
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (sku_code LIKE CONCAT('%', #{keyword}, '%')
+                OR product_name LIKE CONCAT('%', #{keyword}, '%')
+                OR mnemonic_code LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            AND status = 1
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.example.erpsystem.entity.Product" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (
+            sku_code, product_name, mnemonic_code, category_id, spec, model,
+            unit, barcode, cost_price, sale_price, min_stock, max_stock,
+            supplier_id, shelf_life, storage_location, status, remark
+        ) VALUES (
+                     #{skuCode}, #{productName}, #{mnemonicCode}, #{categoryId}, #{spec}, #{model},
+                     #{unit}, #{barcode}, #{costPrice}, #{salePrice}, #{minStock}, #{maxStock},
+                     #{supplierId}, #{shelfLife}, #{storageLocation}, #{status}, #{remark}
+                 )
+    </insert>
+
+    <!-- 更新 -->
+    <update id="update" parameterType="com.example.erpsystem.entity.Product">
+        UPDATE product
+        <set>
+            <if test="skuCode != null">sku_code = #{skuCode},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="mnemonicCode != null">mnemonic_code = #{mnemonicCode},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="spec != null">spec = #{spec},</if>
+            <if test="model != null">model = #{model},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="barcode != null">barcode = #{barcode},</if>
+            <if test="costPrice != null">cost_price = #{costPrice},</if>
+            <if test="salePrice != null">sale_price = #{salePrice},</if>
+            <if test="minStock != null">min_stock = #{minStock},</if>
+            <if test="maxStock != null">max_stock = #{maxStock},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="shelfLife != null">shelf_life = #{shelfLife},</if>
+            <if test="storageLocation != null">storage_location = #{storageLocation},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM product WHERE id = #{id}
+    </select>
+
+    <!-- 逻辑删除（停用） -->
+    <update id="deleteById">
+        UPDATE product SET status = 0, updated_at = CURRENT_TIMESTAMP WHERE id = #{id}
+    </update>
+
+</mapper>

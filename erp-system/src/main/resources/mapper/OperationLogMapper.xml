@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.OperationLogMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO operation_log (user_id, username, module, action, method, params, ip_address, status, error_msg, operation_time)
+        VALUES (#{userId}, #{username}, #{module}, #{action}, #{method}, #{params}, #{ipAddress}, #{status}, #{errorMsg}, #{operationTime})
+    </insert>
+
+    <select id="selectList" resultType="com.example.erpsystem.entity.OperationLog">
+        SELECT * FROM operation_log
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%') OR action LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND operation_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND operation_time &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY operation_time DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- ✅ 补count，完全匹配你的Controller参数 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM operation_log
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%') OR action LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="startDate != null and startDate != ''">
+                AND operation_time >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                AND operation_time &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+</mapper>

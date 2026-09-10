@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.WarehouseMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.Warehouse">
+        <id column="id" property="id"/>
+        <result column="warehouse_code" property="warehouseCode"/>
+        <result column="warehouse_name" property="warehouseName"/>
+        <result column="address" property="address"/>
+        <result column="manager" property="manager"/>
+        <result column="phone" property="phone"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <!-- created_at/updated_at靠驼峰映射，不写 -->
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, warehouse_code, warehouse_name, address, manager, phone, status, remark
+    </sql>
+
+    <!-- 分页列表查询 -->
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM warehouse
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (warehouse_name LIKE CONCAT('%', #{keyword}, '%')
+                OR warehouse_code LIKE CONCAT('%', #{keyword}, '%')
+                OR manager LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <!-- 总数查询 -->
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM warehouse
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (warehouse_name LIKE CONCAT('%', #{keyword}, '%')
+                OR warehouse_code LIKE CONCAT('%', #{keyword}, '%')
+                OR manager LIKE CONCAT('%', #{keyword}, '%')
+                OR phone LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <!-- 按ID查询 -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM warehouse
+        WHERE id = #{id}
+    </select>
+
+    <!-- 新增仓库 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO warehouse
+        (warehouse_code, warehouse_name, address, manager, phone, status, remark)
+        VALUES
+            (#{warehouseCode}, #{warehouseName}, #{address}, #{manager}, #{phone}, #{status}, #{remark})
+    </insert>
+
+    <!-- 更新仓库（含停用） -->
+    <update id="updateById">
+        UPDATE warehouse
+        <set>
+            <if test="warehouseCode != null">warehouse_code = #{warehouseCode},</if>
+            <if test="warehouseName != null">warehouse_name = #{warehouseName},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="manager != null">manager = #{manager},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 替换原来的 selectMaxCodeByPrefix -->
+    <select id="selectMaxCodeByPrefix" resultType="String">
+        SELECT MAX(warehouse_code)
+        FROM warehouse
+        WHERE DATE(created_at) = CURDATE()
+          AND warehouse_code LIKE 'WH%'
+    </select>
+</mapper>

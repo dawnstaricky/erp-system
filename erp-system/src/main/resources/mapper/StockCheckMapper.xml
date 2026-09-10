@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.StockCheckMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.StockCheck">
+        <id column="id" property="id"/>
+        <result column="check_no" property="checkNo"/>
+        <result column="warehouse_id" property="warehouseId"/>
+        <result column="product_id" property="productId"/>
+        <result column="book_quantity" property="bookQuantity"/>
+        <result column="actual_quantity" property="actualQuantity"/>
+        <result column="difference" property="difference"/>
+        <result column="reason" property="reason"/>
+        <result column="status" property="status"/>
+        <result column="checker_id" property="checkerId"/>
+        <result column="check_date" property="checkDate"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+<!--    <insert id="insert" useGeneratedKeys="true" keyProperty="id">-->
+<!--        INSERT INTO stock_check (check_no, warehouse_id, product_id, book_quantity, actual_quantity, difference, reason, status, checker_id, check_date)-->
+<!--        VALUES (#{checkNo}, #{warehouseId}, #{productId}, #{bookQuantity}, #{actualQuantity}, #{difference}, #{reason}, #{status}, #{checkerId}, #{checkDate})-->
+<!--    </insert>-->
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO stock_check (check_no, warehouse_id, product_id, book_quantity, actual_quantity, reason, status, checker_id, check_date)
+        VALUES (#{checkNo}, #{warehouseId}, #{productId}, #{bookQuantity}, #{actualQuantity}, #{reason}, #{status}, #{checkerId}, #{checkDate})
+    </insert>
+
+    <update id="update">
+        UPDATE stock_check
+        <set>
+            <if test="actualQuantity != null">actual_quantity = #{actualQuantity},</if>
+            <if test="difference != null">difference = #{difference},</if>
+            <if test="reason != null">reason = #{reason},</if>
+            <if test="status != null">status = #{status},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT * FROM stock_check WHERE id = #{id}
+    </select>
+
+    <select id="getList" resultMap="BaseResultMap">
+        SELECT sc.*, p.product_name, p.sku_code
+        FROM stock_check sc
+        LEFT JOIN product p ON sc.product_id = p.id
+        <where>
+            <if test="warehouseId != null">AND sc.warehouse_id = #{warehouseId}</if>
+            <if test="keyword != null and keyword != ''">
+                AND (p.product_name LIKE CONCAT('%', #{keyword}, '%') OR sc.check_no LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY sc.created_at DESC
+    </select>
+
+    <!-- 审核通过：调整库存 -->
+    <update id="approve">
+        UPDATE inventory
+        SET quantity = #{actualQuantity}, updated_at = CURRENT_TIMESTAMP
+        WHERE product_id = #{productId} AND warehouse_id = #{warehouseId}
+    </update>
+
+    <!-- 生成盘点单号：SC + 年月日 + 4位流水 -->
+    <select id="generateCheckNo" resultType="String">
+        SELECT CONCAT('SC', DATE_FORMAT(NOW(), '%Y%m%d'),
+                      LPAD(COALESCE(MAX(CAST(SUBSTRING(check_no, 11) AS UNSIGNED)), 0) + 1, 4, '0'))
+        FROM stock_check
+        WHERE check_no LIKE CONCAT('SC', DATE_FORMAT(NOW(), '%Y%m%d'), '%')
+    </select>
+
+</mapper>

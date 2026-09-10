@@ -1,0 +1,208 @@
+### 登录获取Token
+GET http://localhost:8080/login?username=admin&password=123456
+
+### 用Token访问受保护接口（把下面TOKEN换成登录返回的）
+GET http://localhost:8080/test
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUyNDgxMTUsImV4cCI6MTc4NTI1NTMxNX0.-mf3JLtVOGEvoZg1lytQT4g3O9I2TMZbJu0Ef6pQdC8
+
+GET http://localhost:8080/user/info
+Authorization: Bearer 你的Token
+
+### 新增商品
+POST http://localhost:8080/product/add
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUyNDg5MTMsImV4cCI6MTc4NTI1NjExM30.nOn7LCiSJVdrAk_hNXUAgWXyKaYNsxxRAYcRDuyE_Os
+Content-Type: application/json
+
+{
+  "productName": "华为Mate60 Pro",
+  "mnemonicCode": "HWM60P",
+  "categoryId": 1,
+  "spec": "12GB+256GB",
+  "model": "ALP-AL00",
+  "unit": "台",
+  "costPrice": 4500.00,
+  "salePrice": 5499.00,
+  "minStock": 5,
+  "maxStock": 100,
+  "supplierId": 1,
+  "storageLocation": "A区1排3号",
+  "status": 1
+}
+
+### 商品列表
+GET http://localhost:8080/product/list?pageNum=1&pageSize=10
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUyNDg5MTMsImV4cCI6MTc4NTI1NjExM30.nOn7LCiSJVdrAk_hNXUAgWXyKaYNsxxRAYcRDuyE_Os
+
+### 商品详情（把ID换成实际返回的）
+GET http://localhost:8080/product/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUyNDg5MTMsImV4cCI6MTc4NTI1NjExM30.nOn7LCiSJVdrAk_hNXUAgWXyKaYNsxxRAYcRDuyE_Os
+
+### 1. 新增供应商（先有供应商才能采购）
+POST http://localhost:8080/supplier/add
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMjU4ODIsImV4cCI6MTc4NTMzMzA4Mn0.Zo-i8C8oa4Tv13R_vaEEhnChsUWSK6W21fkb3zs7VSI
+
+{
+  "supplierName": "华为供应商",
+  "contactPerson": "张经理",
+  "phone": "13800138000",
+  "status": 1
+}
+
+### 2. 创建采购单
+POST http://localhost:8080/purchase/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+{
+  "order": {
+    "supplierId": 1,
+    "warehouseId": 1,
+    "purchaserId": 1,
+    "orderDate": "2026-07-28",
+    "remark": "测试采购"
+  },
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 10,
+      "price": 4500.00,
+      "remark": "第一批"
+    }
+  ]
+}
+
+### 3. 采购入库（把返回的orderId填进去）
+POST http://localhost:8080/purchase/stock-in/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+### 4. 验证库存是否增加
+GET http://localhost:8080/inventory/list?warehouseId=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+
+### 1. 先新增一个客户
+POST http://localhost:8080/customer/add
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMjcwODMsImV4cCI6MTc4NTMzNDI4M30.ABFq-FM5deImNT-tZHbnRqsGACUgj9KRd4Ft74MoIp4
+
+{
+  "customerName": "测试客户",
+  "contactPerson": "李总",
+  "phone": "13900139000",
+  "status": 1
+}
+
+### 2. 创建销售单
+POST http://localhost:8080/sales/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+
+{
+  "order": {
+    "customerId": 1,
+    "warehouseId": 1,
+    "salesmanId": 1,
+    "orderDate": "2026-07-28",
+    "remark": "测试销售"
+  },
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "price": 5499.00,
+      "remark": "卖给测试客户"
+    }
+  ]
+}
+
+### 3. 销售出库（把返回的orderId填进去）
+POST http://localhost:8080/sales/stock-out/2
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+
+### 4. 验证库存是否扣减
+GET http://localhost:8080/inventory/list?warehouseId=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+
+### 5. 查看库存流水
+GET http://localhost:8080/inventory/flow?productId=1&warehouseId=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+
+### 1. 创建盘点单（先查账面数量，再录入实际数量）
+POST http://localhost:8080/stock-check/create
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMzE4MDAsImV4cCI6MTc4NTMzOTAwMH0.Y47QVx5g7D5W6VTpsvx9vytEy0Ja33y4JkeePDB5Y00
+
+Content-Type: application/json
+
+{
+  "warehouseId": 1,
+  "productId": 1,
+  "actualQuantity": 7,
+  "reason": "少了一台，待查原因",
+  "checkerId": 1,
+  "checkDate": "2026-07-29"
+}
+### 注意：bookQuantity不用传，系统自动从库存表读取
+### 创建后返回checkId
+
+### 2. 审核通过（把库存从8调整为7）
+POST http://localhost:8080/stock-check/approve/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMjg2MDMsImV4cCI6MTc4NTMzNTgwM30.ClXvdXcDHBdnoRMwE623J6UjR1jvmu-YnaDwgYsYbrM
+
+### 3. 验证库存是否变成7
+GET http://localhost:8080/inventory/list?warehouseId=1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInVzZXJJZCI6MSwicmVhbE5hbWUiOiLlvKDkuIkiLCJpYXQiOjE3ODUzMjg2MDMsImV4cCI6MTc4NTMzNTgwM30.ClXvdXcDHBdnoRMwE623J6UjR1jvmu-YnaDwgYsYbrM
+
+
+### 1. 提交报销单（申请人ID=7是普通员工）
+POST http://localhost:8080/expense/submit
+Authorization: Bearer 你的Token
+Content-Type: application/json
+
+{
+  "form": {
+    "applicantId": 7,
+    "deptId": 4,
+    "applyDate": "2026-07-29",
+    "reason": "出差上海拜访客户",
+    "remark": "差旅报销"
+  },
+  "items": [
+    {
+      "expenseTypeId": 1,
+      "expenseDate": "2026-07-25",
+      "amount": 1200.00,
+      "invoiceCount": 3,
+      "remark": "机票"
+    },
+    {
+      "expenseTypeId": 2,
+      "expenseDate": "2026-07-26",
+      "amount": 450.00,
+      "invoiceCount": 2,
+      "remark": "酒店"
+    }
+  ]
+}
+
+### 2. 部门经理审批（用户ID=1是部门经理）
+POST http://localhost:8080/expense/approve/1?approverId=1&approveResult=1&comment=同意
+Authorization: Bearer 你的Token
+
+### 3. 财务审批（用户ID=3是财务）
+POST http://localhost:8080/expense/approve/1?approverId=3&approveResult=1&comment=票据合规
+Authorization: Bearer 你的Token
+
+### 4. 查看我的报销单
+GET http://localhost:8080/expense/my?applicantId=7
+Authorization: Bearer 你的Token
+
+### 5. 查看待办
+GET http://localhost:8080/expense/pending?approverId=1
+Authorization: Bearer 你的Token
+
+
