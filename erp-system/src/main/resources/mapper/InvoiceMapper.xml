@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.InvoiceMapper">
+
+    <resultMap id="BaseMap" type="com.example.erpsystem.entity.Invoice">
+        <id     column="id"           property="id"/>
+        <result column="invoice_no"   property="invoiceNo"/>
+        <result column="company_id"   property="companyId"/>
+        <result column="customer_id"  property="customerId"/>
+        <result column="order_id"     property="orderId"/>
+        <result column="order_no"     property="orderNo"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="invoice_date" property="invoiceDate"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="tax_rate"     property="taxRate"/>
+        <result column="file_url"     property="fileUrl"/>
+        <result column="status"       property="status"/>
+        <result column="remark"       property="remark"/>
+        <result column="created_at"   property="createdAt"/>
+        <result column="updated_at"   property="updatedAt"/>
+        <result column="customer_name" property="customerName"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO invoice (invoice_no, company_id, customer_id, order_id, order_no,
+                             invoice_type, invoice_date, total_amount, tax_rate, file_url, status, remark)
+        VALUES (#{invoiceNo}, #{companyId}, #{customerId}, #{orderId}, #{orderNo},
+                #{invoiceType}, #{invoiceDate}, #{totalAmount}, #{taxRate}, #{fileUrl}, #{status}, #{remark})
+    </insert>
+
+    <update id="updateById">
+        UPDATE invoice
+        <set>
+            <if test="invoiceNo != null">invoice_no = #{invoiceNo},</if>
+            <if test="invoiceDate != null">invoice_date = #{invoiceDate},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseMap">
+        SELECT i.*, c.customer_name
+        FROM invoice i
+        LEFT JOIN customer c ON i.customer_id = c.id
+        WHERE i.id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="BaseMap">
+        SELECT i.*, c.customer_name
+        FROM invoice i
+        LEFT JOIN customer c ON i.customer_id = c.id
+        <where>
+            <if test="companyId != null">AND i.company_id = #{companyId}</if>
+            <if test="customerId != null">AND i.customer_id = #{customerId}</if>
+            <if test="orderId != null">AND i.order_id = #{orderId}</if>
+            <if test="status != null">AND i.status = #{status}</if>
+        </where>
+        ORDER BY i.id DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countList" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM invoice
+        <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
+            <if test="customerId != null">AND customer_id = #{customerId}</if>
+            <if test="orderId != null">AND order_id = #{orderId}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="sumAmountByOrder" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(total_amount), 0)
+        FROM invoice
+        WHERE order_id = #{orderId} AND status = 1
+    </select>
+
+    <select id="sumUninvoicedByCustomer" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(CASE WHEN so.total_amount - IFNULL(inv.invoiced, 0) > 0
+                                 THEN so.total_amount - IFNULL(inv.invoiced, 0) ELSE 0 END), 0)
+        FROM sales_order so
+        LEFT JOIN (
+            SELECT order_id, SUM(total_amount) AS invoiced
+            FROM invoice WHERE status = 1 GROUP BY order_id
+        ) inv ON so.id = inv.order_id
+        WHERE so.company_id = #{companyId} AND so.customer_id = #{customerId}
+          AND so.status = 1
+    </select>
+</mapper>
