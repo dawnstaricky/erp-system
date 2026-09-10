@@ -4,6 +4,8 @@
 -- ⚠️ 务必在 BEGIN/COMMIT 事务里，或全部确认无误再提交
 -- 前置：已执行 01_init_new_tables.sql，且 sys_company 已有 id=1 默认主体
 -- ============================================================
+-- ROLLBACK;
+
 START TRANSACTION;
 
 -- 主数据
@@ -47,12 +49,12 @@ ALTER TABLE `sales_order`
 
 -- 单据明细也冗余交货信息（便于生成合同，避免回查主表）
 ALTER TABLE `purchase_order_item`
-  ADD COLUMN `hardness` varchar(50) DEFAULT NULL AFTER `spec`,
+  ADD COLUMN `hardness` varchar(50) DEFAULT NULL AFTER `remark`,
   ADD COLUMN `tin_layer` varchar(50) DEFAULT NULL AFTER `hardness`,
   ADD COLUMN `coil_no` varchar(100) DEFAULT NULL AFTER `tin_layer`;
 
 ALTER TABLE `sales_order_item`
-  ADD COLUMN `hardness` varchar(50) DEFAULT NULL AFTER `spec`,
+  ADD COLUMN `hardness` varchar(50) DEFAULT NULL AFTER `remark`,
   ADD COLUMN `tin_layer` varchar(50) DEFAULT NULL AFTER `hardness`,
   ADD COLUMN `coil_no` varchar(100) DEFAULT NULL AFTER `tin_layer`;
 
@@ -66,7 +68,7 @@ ALTER TABLE `inventory_flow`
   ADD KEY `idx_company_id` (`company_id`);
 
 ALTER TABLE `stock_check`
-  ADD COLUMN `company_id` bigint NOT NULL DEFAULT 1 COMMENT '所属公司ID' AFTER `remark`,
+  ADD COLUMN `company_id` bigint NOT NULL DEFAULT 1 COMMENT '所属公司ID' AFTER `status`,
   ADD KEY `idx_company_id` (`company_id`);
 
 -- 报销（保留模块，按公司隔离）

@@ -32,7 +32,7 @@ CREATE TABLE `sys_company` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='公司/抬头管理表';
 
 -- 初始化三家公司（信息占位，可在「公司管理」中修改）
-INSERT INTO `sys_company` (`id`, `company_code`, `company_name`, `legal_person`, `tax_number`, `address_phone`, `bank_account`, `status`) VALUES
+INSERT INTO `sys_company` (`id`, `company_code`, `company_name`, `legal_person`, `tax_number`, `address`, `bank_account`, `status`) VALUES
 (1, 'SS',  '上海升顺供应链管理有限公司', '', '', '', '', 1),
 (2, 'LY',  '上海岚页科技有限公司',       '', '', '', '', 1),
 (3, 'YZ',  '上海悦竹屿科技有限公司',     '', '', '', '', 1);
