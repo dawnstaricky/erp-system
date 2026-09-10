@@ -1,52 +1,71 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { getToken, setToken, removeToken, setUserInfo, removeUserInfo } from '@/utils/auth'
+import { login, logout, getUserInfo } from '@/api/user'
+import { getToken, setToken, removeToken } from '@/utils/auth'
 
-export const useUserStore = defineStore('user', () => {
-  const token = ref(getToken() || '')
-  const userInfo = ref(null)
+export const useUserStore = defineStore('user', {
+  state: () => ({
+    token: getToken(),
+    userInfo: null,
+    roles: [],          // 当前公司下的角色 code
+    permissions: [],    // 当前公司下的权限标识
+    companies: [],      // 可进入的公司列表 [{companyId, companyName, isMain, roleCodes}]
+    currentCompany: null // 当前选中的公司 {companyId, companyName}
+  }),
 
-  function setLoginData(data) {
-    token.value = data.token
-    setToken(data.token)
+  actions: {
+    setToken(token) {
+      this.token = token
+      setToken(token)
+    },
 
-    // 构造完整的用户信息对象，包含role
-    const userInfoData = {
-      userId: data.userId,
-      username: data.username,
-      realName: data.realName,
-      // 优先使用后端返回的 roles 数组，如果没有则用单个 role 包装成数组
-      roles: data.roles || (data.role ? [data.role] : []),
-      role: data.role // 保留单个 role 用于兼容旧逻辑
-    }
-    userInfo.value = userInfoData
-    setUserInfo(userInfoData) // 持久化到localStorage
-  }
+    // 登录：返回中包含 companies
+    async login(form) {
+      const data = await login(form)
+      this.setToken(data.token)
+      return data
+    },
 
-  function logout() {
-    token.value = ''
-    userInfo.value = null
-    removeToken()
-    removeUserInfo()
-  }
-
-  // 新增：获取用户信息的方法（供路由守卫调用）
-  async function getUserInfo() {
-    if (!token.value) return null
-    
-    try {
-      // 这里假设有一个获取用户信息的API，如果没有，可以直接从localStorage恢复
-      const storedUserInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
-      if (storedUserInfo.userId) {
-        userInfo.value = storedUserInfo
-        return storedUserInfo
+    // 拉取用户信息 + 可进入的公司列表
+    async fetchUserInfo() {
+      const data = await getUserInfo()
+      this.userInfo = data.userInfo || data
+      this.roles = data.roles || []
+      this.permissions = data.permissions || []
+      this.companies = data.companies || []   // 后端新增字段
+      // 若已有选中公司且仍在可选列表中，保留；否则取第一个/置空
+      const saved = localStorage.getItem('currentCompany')
+      const match = saved ? this.companies.find(c => String(c.companyId) === saved) : null
+      this.currentCompany = match || this.companies[0] || null
+      if (this.currentCompany) {
+        localStorage.setItem('currentCompany', String(this.currentCompany.companyId))
       }
-      return null
-    } catch (error) {
-      console.error('获取用户信息失败:', error)
-      return null
+      return data
+    },
+
+    // 切换公司：更新角色/权限并持久化
+    async switchCompany(companyId) {
+      const comp = this.companies.find(c => String(c.companyId) === String(companyId))
+      if (!comp) return
+      this.currentCompany = comp
+      localStorage.setItem('currentCompany', String(comp.companyId))
+      // 重新拉取该公司下的用户信息（角色/权限会随之变化）
+      await this.fetchUserInfo()
+    },
+
+    async logout() {
+      try { await logout() } catch (e) {}
+      this.reset()
+    },
+
+    reset() {
+      removeToken()
+      this.token = ''
+      this.userInfo = null
+      this.roles = []
+      this.permissions = []
+      this.companies = []
+      this.currentCompany = null
+      localStorage.removeItem('currentCompany')
     }
   }
-
-  return { token, userInfo, setLoginData, logout }
 })
