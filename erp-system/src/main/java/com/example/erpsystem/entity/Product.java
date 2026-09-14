@@ -26,4 +26,12 @@ public class Product {
     private String remark;            // 备注
     private LocalDateTime createdAt;  // 创建时间
     private LocalDateTime updatedAt;  // 更新时间
+
+    // === 钢材商品扩展字段 ===
+    private String hardness;     // 硬度
+    private String tinLayer;     // 锡层
+    private String coilNo;       // 钢卷号
+    private String steelMill;    // 钢厂
+    private String grade;        // 等级
+    private java.time.LocalDate entryDate; // 入库日期
 }

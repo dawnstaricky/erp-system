@@ -129,6 +129,9 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserList, addUser, updateUser, deleteUser, getUserDepts, getUserRoles, getUserRoleIds  } from '@/api/user'
 import { assignUserRoles, getRoleList } from '@/api/role'
 import { getDeptList } from '@/api/dept'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const loading = ref(false)
 const tableData = ref([])
@@ -184,7 +187,14 @@ async function openAssignRole(row) {
 }
 
 async function handleAssignSubmit() {
-  await assignUserRoles(assignUserId.value, assignRoleIds.value)
+  const currentCompanyId = userStore.currentCompanyId; 
+    
+    if (!currentCompanyId || currentCompanyId === 0) {
+        ElMessage.warning('请先在右上角选择公司');
+        return;
+    }
+
+  await assignUserRoles(assignUserId.value, assignRoleIds.value, currentCompanyId)
   ElMessage.success('角色分配成功')
   assignDialogVisible.value = false
 }

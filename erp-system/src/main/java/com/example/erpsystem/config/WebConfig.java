@@ -1,5 +1,6 @@
 package com.example.erpsystem.config;
 
+import com.example.erpsystem.interceptor.CompanyInterceptor;
 import com.example.erpsystem.interceptor.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,9 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
     private JwtInterceptor jwtInterceptor;
+
+    @Autowired(required = false)
+    private CompanyInterceptor companyInterceptor;
 
     @Value("${file.upload.expense}")
     private String expenseUploadDir;
@@ -32,6 +36,13 @@ public class WebConfig implements WebMvcConfigurer {
                         "/user/change-password",
                         "/user/profile"
                 );
+
+        // 多公司隔离拦截器：在 JWT 之后执行，注入当前公司上下文
+        if (companyInterceptor != null) {
+            registry.addInterceptor(companyInterceptor)
+                    .addPathPatterns("/**")
+                    .excludePathPatterns("/login", "/error", "/swagger-ui/**", "/v3/api-docs/**");
+        }
     }
 
     @Override

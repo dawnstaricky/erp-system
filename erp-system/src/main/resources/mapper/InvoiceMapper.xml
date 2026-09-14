@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.InvoiceMapper">
+        <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.Invoice">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="invoice_no" property="invoiceNo"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="invoice_type" property="invoiceType"/>
+        <result column="invoice_date" property="invoiceDate"/>
+        <result column="amount" property="amount"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="status" property="status"/>
+        <result column="file_url" property="fileUrl"/>
+        <result column="remark" property="remark"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">id,company_id,invoice_no,order_id,order_no,customer_id,customer_name,invoice_type,invoice_date,amount,tax_rate,status,file_url,remark,creator_id,created_at</sql>
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM invoice
+        <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
+            <if test="orderId != null">AND order_id = #{orderId}</if>
+            <if test="customerId != null">AND customer_id = #{customerId}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+    <select id="selectInvoicedAmountByOrderId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount),0) FROM invoice WHERE order_id=#{orderId} AND status=1
+    </select>
+    <select id="selectById" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM invoice WHERE id=#{id}</select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO invoice(company_id,invoice_no,order_id,order_no,customer_id,customer_name,invoice_type,invoice_date,amount,tax_rate,status,file_url,remark,creator_id)
+        VALUES(#{companyId},#{invoiceNo},#{orderId},#{orderNo},#{customerId},#{customerName},#{invoiceType},#{invoiceDate},#{amount},#{taxRate},#{status},#{fileUrl},#{remark},#{creatorId})
+    </insert>
+    <update id="voidInvoice">UPDATE invoice SET status=2 WHERE id=#{id}</update>
+</mapper>

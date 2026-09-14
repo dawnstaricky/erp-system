@@ -13,8 +13,8 @@
     </resultMap>
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO sales_order (order_no, customer_id, warehouse_id, total_amount, status, salesman_id, order_date, remark)
-        VALUES (#{orderNo}, #{customerId}, #{warehouseId}, #{totalAmount}, #{status}, #{salesmanId}, #{orderDate}, #{remark})
+        INSERT INTO sales_order (order_no, customer_id, warehouse_id, total_amount, status, salesman_id, order_date, remark, company_id)
+        VALUES (#{orderNo}, #{customerId}, #{warehouseId}, #{totalAmount}, #{status}, #{salesmanId}, #{orderDate}, #{remark}, #{companyId})
     </insert>
 
     <update id="updateOrder">
@@ -32,7 +32,7 @@
     </update>
 
     <select id="selectOrderById" resultType="com.example.erpsystem.entity.SalesOrder">
-        SELECT * FROM sales_order WHERE id = #{id}
+        SELECT * FROM sales_order WHERE id = #{id} AND company_id = #{companyId}
     </select>
 
     <select id="generateOrderNo" resultType="String">
@@ -104,6 +104,9 @@
         <if test="orderNo != null and orderNo != ''">
             AND so.order_no LIKE CONCAT('%', #{orderNo}, '%')
         </if>
+        <if test="companyId != null">
+            AND so.company_id = #{companyId}
+        </if>
         ORDER BY so.created_at DESC
         LIMIT #{offset}, #{pageSize}
     </select>
@@ -114,6 +117,9 @@
         WHERE 1=1
         <if test="orderNo != null and orderNo != ''">
             AND so.order_no LIKE CONCAT('%', #{orderNo}, '%')
+        </if>
+        <if test="companyId != null">
+            AND so.company_id = #{companyId}
         </if>
     </select>
 
@@ -135,6 +141,10 @@
         FROM sales_order so
                  LEFT JOIN customer c ON so.customer_id = c.id
         WHERE so.id = #{id}
+    </select>
+
+    <select id="selectEntityById" resultMap="BaseResultMap">
+        SELECT * FROM sales_order WHERE id = #{id}
     </select>
 
     <!-- 销售订单明细+商品信息 -->

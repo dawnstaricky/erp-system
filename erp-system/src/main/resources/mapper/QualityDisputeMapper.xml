@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.QualityDisputeMapper">
+        <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.QualityDispute">
+        <id column="id" property="id"/>
+        <result column="dispute_no" property="disputeNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="dispute_type" property="disputeType"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="product_id" property="productId"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="quantity" property="quantity"/>
+        <result column="claim_amount" property="claimAmount"/>
+        <result column="description" property="description"/>
+        <result column="evidence_urls" property="evidenceUrls"/>
+        <result column="handle_method" property="handleMethod"/>
+        <result column="finance_adjusted" property="financeAdjusted"/>
+        <result column="adjust_type" property="adjustType"/>
+        <result column="adjusted_amount" property="adjustedAmount"/>
+        <result column="adjusted_bill_no" property="adjustedBillNo"/>
+        <result column="adjust_remark" property="adjustRemark"/>
+        <result column="status" property="status"/>
+        <result column="handler_id" property="handlerId"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">id,dispute_no,company_id,dispute_type,supplier_id,customer_id,order_id,product_id,contract_no,quantity,claim_amount,description,evidence_urls,handle_method,finance_adjusted,adjust_type,adjusted_amount,adjusted_bill_no,adjust_remark,status,handler_id,created_at,updated_at</sql>
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM quality_dispute
+        <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
+            <if test="disputeType != null">AND dispute_type = #{disputeType}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+    <select id="selectById" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM quality_dispute WHERE id=#{id}</select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO quality_dispute(dispute_no,company_id,dispute_type,supplier_id,customer_id,order_id,product_id,contract_no,quantity,claim_amount,description,evidence_urls,status,handler_id)
+        VALUES(#{disputeNo},#{companyId},#{disputeType},#{supplierId},#{customerId},#{orderId},#{productId},#{contractNo},#{quantity},#{claimAmount},#{description},#{evidenceUrls},#{status},#{handlerId})
+    </insert>
+    <update id="updateById">
+        UPDATE quality_dispute
+        <set>
+            <if test="handleMethod != null">handle_method=#{handleMethod},</if>
+            <if test="financeAdjusted != null">finance_adjusted=#{financeAdjusted},</if>
+            <if test="adjustType != null">adjust_type=#{adjustType},</if>
+            <if test="adjustedAmount != null">adjusted_amount=#{adjustedAmount},</if>
+            <if test="adjustedBillNo != null">adjusted_bill_no=#{adjustedBillNo},</if>
+            <if test="adjustRemark != null">adjust_remark=#{adjustRemark},</if>
+            <if test="status != null">status=#{status},</if>
+            <if test="handlerId != null">handler_id=#{handlerId},</if>
+            updated_at=now()
+        </set>
+        WHERE id=#{id}
+    </update>
+</mapper>

@@ -38,5 +38,6 @@ public interface SalesOrderMapper {
     public int selectCount(String orderNo);
 
     SalesOrderDTO selectById(Long id);
+    SalesOrder selectEntityById(Long id);
     List<SalesOrderItemDTO> selectItemsDTOByOrderId(Long orderId);
 }

@@ -13,8 +13,7 @@
     </resultMap>
 
     <insert id="insertOrder" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO purchase_order (order_no, supplier_id, warehouse_id, total_amount, status, purchaser_id, order_date, remark)
-        VALUES (#{orderNo}, #{supplierId}, #{warehouseId}, #{totalAmount}, #{status}, #{purchaserId}, #{orderDate}, #{remark})
+        INSERT INTO purchase_order (order_no, supplier_id, warehouse_id, total_amount, status, purchaser_id, order_date, remark, company_id) VALUES (#{orderNo}, #{supplierId}, #{warehouseId}, #{totalAmount}, #{status}, #{purchaserId}, #{orderDate}, #{remark}, #{companyId})))
     </insert>
 
     <update id="updateOrder">

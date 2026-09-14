@@ -1,5 +1,6 @@
 package com.example.erpsystem.service;
 
+import com.example.erpsystem.entity.SysUserCompanyRole;
 import com.example.erpsystem.entity.User;
 import com.example.erpsystem.mapper.UserMapper;
 import org.apache.ibatis.annotations.Param;
@@ -98,13 +99,14 @@ public class UserService {
     }
 
     @Transactional
-    public void assignRoles(Long userId, List<Long> roleIds) {
+    public void assignRoles(Long userId, Long companyId, List<Long> roleIds) {
         // 1. 先删掉该用户所有的旧角色
-        userMapper.deleteUserRoles(userId);
+        //userMapper.deleteUserRoles(userId);
+        userMapper.deleteUserCompanyRoles(userId, companyId);
 
         // 2. 如果传了新角色，则插入
         if (roleIds != null && !roleIds.isEmpty()) {
-            userMapper.insertUserRoles(userId, roleIds);
+            userMapper.insertUserCompanyRoles(userId, companyId, roleIds);
         }
     }
 
@@ -118,5 +120,9 @@ public class UserService {
 
     public void updateDeptId(Long userId, Long deptId) {
         userMapper.updateDeptId(userId, deptId);
+    }
+
+    public List<SysUserCompanyRole> selectCompaniesByUserId(Long userId) {
+        return userMapper.selectCompaniesByUserId(userId);
     }
 }

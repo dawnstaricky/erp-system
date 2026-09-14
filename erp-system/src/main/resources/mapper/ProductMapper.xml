@@ -45,12 +45,10 @@
         INSERT INTO product (
             sku_code, product_name, mnemonic_code, category_id, spec, model,
             unit, barcode, cost_price, sale_price, min_stock, max_stock,
-            supplier_id, shelf_life, storage_location, status, remark
-        ) VALUES (
+            supplier_id, shelf_life, storage_location, status, remark, company_id) VALUES (
                      #{skuCode}, #{productName}, #{mnemonicCode}, #{categoryId}, #{spec}, #{model},
                      #{unit}, #{barcode}, #{costPrice}, #{salePrice}, #{minStock}, #{maxStock},
-                     #{supplierId}, #{shelfLife}, #{storageLocation}, #{status}, #{remark}
-                 )
+                     #{supplierId}, #{shelfLife}, #{storageLocation}, #{status}, #{remark}, #{companyId})))
     </insert>
 
     <!-- 更新 -->

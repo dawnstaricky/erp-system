@@ -21,6 +21,6 @@ export function deleteRole(id) {
   return request.delete(`/role/${id}`)
 }
 
-export function assignUserRoles(userId, roleIds) {
-  return request.post(`/user/assign-roles?userId=${userId}`, roleIds)
+export function assignUserRoles(userId, roleIds, companyId) {
+  return request.post(`/user/assign-roles?userId=${userId}&companyId=${companyId}`, roleIds)
 }

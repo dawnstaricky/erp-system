@@ -44,6 +44,8 @@ public class LoginController {
             data.put("realName", user.getRealName());
             data.put("roles", roles); // 前端存到userInfo.roles数组
             data.put("role", roles.get(0)); // 兼容原有单角色逻辑，取第一个
+            // 多公司：返回当前用户可访问的公司列表（管理员不绑定公司，返回空）
+            data.put("companies", userService.selectCompaniesByUserId(user.getId()));
 
             return Result.success(data);
         } else {
@@ -74,6 +76,8 @@ public class LoginController {
             data.put("realName", user.getRealName());
             data.put("roles", roles); // 前端存到userInfo.roles数组
             data.put("role", roles.get(0)); // 兼容原有单角色逻辑，取第一个
+            // 多公司：返回当前用户可访问的公司列表（管理员不绑定公司，返回空）
+            data.put("companies", userService.selectCompaniesByUserId(user.getId()));
 
             return Result.success(data);
         } else {

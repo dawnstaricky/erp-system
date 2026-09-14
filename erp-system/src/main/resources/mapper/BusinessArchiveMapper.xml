@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.BusinessArchiveMapper">
+        <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.BusinessArchive">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="purchase_done" property="purchaseDone"/>
+        <result column="sale_draft_done" property="saleDraftDone"/>
+        <result column="outbound_done" property="outboundDone"/>
+        <result column="invoice_done" property="invoiceDone"/>
+        <result column="receipt_done" property="receiptDone"/>
+        <result column="is_archived" property="isArchived"/>
+        <result column="archived_at" property="archivedAt"/>
+        <result column="auto_unarchived" property="autoUnarchived"/>
+        <result column="unarchive_reason" property="unarchiveReason"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">id,company_id,order_id,order_no,customer_id,purchase_done,sale_draft_done,outbound_done,invoice_done,receipt_done,is_archived,archived_at,auto_unarchived,unarchive_reason,created_at,updated_at</sql>
+    <select id="selectByOrderId" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM business_archive WHERE company_id=#{companyId} AND order_id=#{orderId}</select>
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM business_archive
+        <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
+            <if test="isArchived != null">AND is_archived = #{isArchived}</if>
+        </where>
+        ORDER BY updated_at DESC
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO business_archive(company_id,order_id,order_no,customer_id,purchase_done,sale_draft_done,outbound_done,invoice_done,receipt_done,is_archived)
+        VALUES(#{companyId},#{orderId},#{orderNo},#{customerId},#{purchaseDone},#{saleDraftDone},#{outboundDone},#{invoiceDone},#{receiptDone},#{isArchived})
+    </insert>
+    <update id="updateById">
+        UPDATE business_archive
+        <set>
+            <if test="purchaseDone != null">purchase_done=#{purchaseDone},</if>
+            <if test="saleDraftDone != null">sale_draft_done=#{saleDraftDone},</if>
+            <if test="outboundDone != null">outbound_done=#{outboundDone},</if>
+            <if test="invoiceDone != null">invoice_done=#{invoiceDone},</if>
+            <if test="receiptDone != null">receipt_done=#{receiptDone},</if>
+            <if test="isArchived != null">is_archived=#{isArchived},</if>
+            <if test="archivedAt != null">archived_at=#{archivedAt},</if>
+            <if test="autoUnarchived != null">auto_unarchived=#{autoUnarchived},</if>
+            <if test="unarchiveReason != null">unarchive_reason=#{unarchiveReason},</if>
+            updated_at=now()
+        </set>
+        WHERE id=#{id}
+    </update>
+    <update id="archive">UPDATE business_archive SET is_archived=1,archived_at=now(),auto_unarchived=0,unarchive_reason=null WHERE id=#{id}</update>
+    <update id="unarchive">UPDATE business_archive SET is_archived=0,auto_unarchived=1,unarchive_reason=#{reason} WHERE id=#{id}</update>
+</mapper>

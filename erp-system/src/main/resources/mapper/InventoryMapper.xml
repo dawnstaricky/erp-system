@@ -37,6 +37,7 @@
         FROM inventory i
         LEFT JOIN product p ON i.product_id = p.id
         <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="warehouseId != null">
                 AND i.warehouse_id = #{warehouseId}
             </if>

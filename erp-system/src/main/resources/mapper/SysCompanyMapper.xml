@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.SysCompanyMapper">
+    <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.SysCompany">
+        <id column="id" property="id"/>
+        <result column="company_code" property="companyCode"/>
+        <result column="company_name" property="companyName"/>
+        <result column="legal_person" property="legalPerson"/>
+        <result column="tax_number" property="taxNumber"/>
+        <result column="address" property="address"/>
+        <result column="phone" property="phone"/>
+        <result column="bank_name" property="bankName"/>
+        <result column="bank_account" property="bankAccount"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+    <sql id="Base_Column_List">id,company_code,company_name,legal_person,tax_number,address,phone,bank_name,bank_account,status,remark,created_at,updated_at</sql>
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM sys_company
+        <where>
+            <if test="companyName != null and companyName != ''">AND company_name LIKE CONCAT('%',#{companyName},'%')</if>
+            <if test="status != null and status != ''">AND status = #{status}</if>
+        </where>
+        ORDER BY id ASC
+    </select>
+    <select id="selectById" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM sys_company WHERE id = #{id}</select>
+    <select id="selectAll" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM sys_company WHERE status = '1' ORDER BY id ASC</select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_company(company_code,company_name,legal_person,tax_number,address,phone,bank_name,bank_account,status,remark)
+        VALUES(#{companyCode},#{companyName},#{legalPerson},#{taxNumber},#{address},#{phone},#{bankName},#{bankAccount},#{status},#{remark})
+    </insert>
+    <update id="updateById">
+        UPDATE sys_company
+        <set>
+            <if test="companyCode != null">company_code=#{companyCode},</if>
+            <if test="companyName != null">company_name=#{companyName},</if>
+            <if test="legalPerson != null">legal_person=#{legalPerson},</if>
+            <if test="taxNumber != null">tax_number=#{taxNumber},</if>
+            <if test="address != null">address=#{address},</if>
+            <if test="phone != null">phone=#{phone},</if>
+            <if test="bankName != null">bank_name=#{bankName},</if>
+            <if test="bankAccount != null">bank_account=#{bankAccount},</if>
+            <if test="status != null">status=#{status},</if>
+            <if test="remark != null">remark=#{remark},</if>
+            updated_at=now()
+        </set>
+        WHERE id=#{id}
+    </update>
+    <delete id="deleteById">DELETE FROM sys_company WHERE id=#{id}</delete>
+</mapper>

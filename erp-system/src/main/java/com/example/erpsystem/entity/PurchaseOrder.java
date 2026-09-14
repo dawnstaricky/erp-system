@@ -23,4 +23,13 @@ public class PurchaseOrder {
     private String remark;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    // === 多公司 + 业财扩展字段 ===
+    private Long companyId;
+    private String deliveryMethod;
+    private Integer isTaxIncluded;
+    private java.math.BigDecimal taxRate;
+    private java.math.BigDecimal taxAmount;
+    private java.math.BigDecimal untaxedAmount;
+    private Integer invoiceDone;
 }

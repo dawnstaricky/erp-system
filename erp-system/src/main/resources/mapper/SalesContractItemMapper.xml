@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.SalesContractItemMapper">
+    <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.SalesContractItem">
+        <id column="id" property="id"/>
+        <result column="contract_id" property="contractId"/>
+        <result column="product_id" property="productId"/>
+        <result column="product_name" property="productName"/>
+        <result column="material" property="material"/>
+        <result column="spec" property="spec"/>
+        <result column="hardness" property="hardness"/>
+        <result column="tin_layer" property="tinLayer"/>
+        <result column="steel_mill" property="steelMill"/>
+        <result column="origin" property="origin"/>
+        <result column="quantity" property="quantity"/>
+        <result column="unit" property="unit"/>
+        <result column="unit_price" property="unitPrice"/>
+        <result column="amount" property="amount"/>
+        <result column="remark" property="remark"/>
+    </resultMap>
+    <insert id="insertBatch">
+        INSERT INTO sales_contract_item(contract_id,product_id,product_name,material,spec,hardness,tin_layer,steel_mill,origin,quantity,unit,unit_price,amount,remark) VALUES
+        <foreach collection="list" item="it" separator=",">
+            (#{it.contractId},#{it.productId},#{it.productName},#{it.material},#{it.spec},#{it.hardness},#{it.tinLayer},#{it.steelMill},#{it.origin},#{it.quantity},#{it.unit},#{it.unitPrice},#{it.amount},#{it.remark})
+        </foreach>
+    </insert>
+    <select id="selectByContractId" resultMap="BaseResultMap">SELECT * FROM sales_contract_item WHERE contract_id=#{contractId}</select>
+</mapper>

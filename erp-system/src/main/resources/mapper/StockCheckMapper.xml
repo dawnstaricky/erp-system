@@ -48,6 +48,7 @@
         FROM stock_check sc
         LEFT JOIN product p ON sc.product_id = p.id
         <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="warehouseId != null">AND sc.warehouse_id = #{warehouseId}</if>
             <if test="keyword != null and keyword != ''">
                 AND (p.product_name LIKE CONCAT('%', #{keyword}, '%') OR sc.check_no LIKE CONCAT('%', #{keyword}, '%'))

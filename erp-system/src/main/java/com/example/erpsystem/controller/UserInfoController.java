@@ -189,8 +189,10 @@ public class UserInfoController {
      */
     @RequiresRoles("ADMIN")
     @PostMapping("/user/assign-roles")
-    public Result<?> assignRoles(@RequestParam Long userId, @RequestBody List<Long> roleIds) {
-        userService.assignRoles(userId, roleIds);
+    public Result<?> assignRoles(@RequestParam Long userId,
+                                 @RequestParam Long companyId,
+                                 @RequestBody List<Long> roleIds) {
+        userService.assignRoles(userId, companyId, roleIds);
         return Result.success("角色分配成功");
     }
 

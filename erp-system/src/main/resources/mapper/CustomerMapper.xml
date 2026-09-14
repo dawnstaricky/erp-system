@@ -21,6 +21,7 @@
     <select id="getList" resultMap="BaseResultMap">
         SELECT * FROM customer
         <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="keyword != null and keyword != ''">
                 AND (customer_name LIKE CONCAT('%', #{keyword}, '%') OR contact_person LIKE CONCAT('%', #{keyword}, '%'))
             </if>

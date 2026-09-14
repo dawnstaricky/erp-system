@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.SalesContractMapper">
+        <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.SalesContract">
+        <id column="id" property="id"/>
+        <result column="contract_no" property="contractNo"/>
+        <result column="company_id" property="companyId"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="order_id" property="orderId"/>
+        <result column="sign_date" property="signDate"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="tax_rate" property="taxRate"/>
+        <result column="tax_amount" property="taxAmount"/>
+        <result column="is_tax_included" property="isTaxIncluded"/>
+        <result column="delivery_method" property="deliveryMethod"/>
+        <result column="payment_terms" property="paymentTerms"/>
+        <result column="delivery_period" property="deliveryPeriod"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">id,contract_no,company_id,customer_id,customer_name,order_id,sign_date,total_amount,tax_rate,tax_amount,is_tax_included,delivery_method,payment_terms,delivery_period,status,remark,created_at,updated_at</sql>
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM sales_contract
+        <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
+            <if test="customerId != null">AND customer_id = #{customerId}</if>
+            <if test="contractNo != null and contractNo != ''">AND contract_no LIKE CONCAT('%',#{contractNo},'%')</if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+    <select id="selectById" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM sales_contract WHERE id=#{id}</select>
+    <select id="selectByOrderId" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM sales_contract WHERE order_id=#{orderId}</select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sales_contract(contract_no,company_id,customer_id,customer_name,order_id,sign_date,total_amount,tax_rate,tax_amount,is_tax_included,delivery_method,payment_terms,delivery_period,status,remark)
+        VALUES(#{contractNo},#{companyId},#{customerId},#{customerName},#{orderId},#{signDate},#{totalAmount},#{taxRate},#{taxAmount},#{isTaxIncluded},#{deliveryMethod},#{paymentTerms},#{deliveryPeriod},#{status},#{remark})
+    </insert>
+    <update id="updateStatus">UPDATE sales_contract SET status=#{status},updated_at=now() WHERE id=#{id}</update>
+</mapper>

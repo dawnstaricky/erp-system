@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.erpsystem.mapper.ReceiptMapper">
+        <resultMap id="BaseResultMap" type="com.example.erpsystem.entity.Receipt">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="receipt_no" property="receiptNo"/>
+        <result column="order_id" property="orderId"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="customer_name" property="customerName"/>
+        <result column="receipt_date" property="receiptDate"/>
+        <result column="amount" property="amount"/>
+        <result column="unallocated_amount" property="unallocatedAmount"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="bank_account" property="bankAccount"/>
+        <result column="remark" property="remark"/>
+        <result column="creator_id" property="creatorId"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">id,company_id,receipt_no,order_id,order_no,customer_id,customer_name,receipt_date,amount,unallocated_amount,payment_method,bank_account,remark,creator_id,created_at</sql>
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/> FROM receipt
+        <where>
+            <if test="companyId != null">AND company_id = #{companyId}</if>
+            <if test="orderId != null">AND order_id = #{orderId}</if>
+            <if test="customerId != null">AND customer_id = #{customerId}</if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+    <select id="selectReceivedAmountByOrderId" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount),0) FROM receipt WHERE order_id=#{orderId}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO receipt(company_id,receipt_no,order_id,order_no,customer_id,customer_name,receipt_date,amount,unallocated_amount,payment_method,bank_account,remark,creator_id)
+        VALUES(#{companyId},#{receiptNo},#{orderId},#{orderNo},#{customerId},#{customerName},#{receiptDate},#{amount},#{unallocatedAmount},#{paymentMethod},#{bankAccount},#{remark},#{creatorId})
+    </insert>
+</mapper>

@@ -1,0 +1,17 @@
+﻿# 后端
+target/
+*.class
+*.jar
+application-prod.yml
+.idea/
+*.iml
+
+# 前端
+node_modules/
+dist/
+.vite/
+
+# 通用
+.git/
+*.log
+.DS_Store
