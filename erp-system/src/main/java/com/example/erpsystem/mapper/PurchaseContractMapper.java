@@ -34,7 +34,7 @@ public interface PurchaseContractMapper {
     List<PurchaseContractItem> selectItemsByContractId(@Param("contractId") Long contractId);
 
     /** 按订单ID查合同（生成即下载场景） */
-    @Select("SELECT * FROM purchase_contract WHERE order_id = #{orderId} ORDER BY id DESC LIMIT 1")
+    //@Select("SELECT * FROM purchase_contract WHERE order_id = #{orderId} ORDER BY id DESC LIMIT 1")
     PurchaseContract selectByOrderId(@Param("orderId") Long orderId);
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
 }

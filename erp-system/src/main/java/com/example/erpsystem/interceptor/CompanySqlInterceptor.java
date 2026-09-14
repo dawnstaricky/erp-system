@@ -8,6 +8,7 @@ import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
+import org.springframework.stereotype.Component;
 
 import java.sql.Connection;
 import java.util.Properties;
@@ -18,6 +19,7 @@ import java.util.Properties;
  * - SELECT/UPDATE/DELETE：自动追加 WHERE company_id = ?（仅业务表，白名单控制）
  * 管理员（ADMIN）请求 companyId 为 null，则不注入（管理员只访问系统管理接口，均被白名单排除）
  */
+@Component
 @Intercepts({@Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class})})
 public class CompanySqlInterceptor implements Interceptor {
 
