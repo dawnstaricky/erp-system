@@ -24,6 +24,17 @@ public class CompanyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String uri = request.getRequestURI();
+        String companyHeader = request.getHeader("X-Company-Id");
+        String authHeader = request.getHeader("Authorization");
+
+        // ===== 关键日志：CompanyInterceptor 开始 =====
+        System.out.println("\n===== CompanyInterceptor =====");
+        System.out.println("Request URI: " + uri);
+        System.out.println("X-Company-Id Header: " + companyHeader);
+        System.out.println("Authorization Header: " + authHeader);
+        // =========================================
+
         // 优先从请求头取公司ID（前端切换后透传）
         Long companyId = parseCompanyId(request.getHeader("X-Company-Id"));
         // 再从 JWT 解析角色，判断是否管理员
@@ -44,9 +55,11 @@ public class CompanyInterceptor implements HandlerInterceptor {
 
         // 非管理员访问业务接口必须已选公司（登录/系统管理接口除外，由白名单放行）
         if (!isAdmin && companyId == null && !isExcluded(request.getRequestURI())) {
+            System.out.println("CompanyInterceptor: Non-admin, no companyId, URI not excluded. Write 400.\n");
             writeNoCompany(response);
             return false;
         }
+        System.out.println("CompanyInterceptor: Passed. isAdmin=" + isAdmin + ", companyId=" + companyId + "\n");
         return true;
     }
 

@@ -70,6 +70,8 @@ async function handleLogin() {
   await loginFormRef.value.validate()
   loading.value = true
   try {
+    localStorage.removeItem('token')
+    localStorage.removeItem('currentCompanyId')
     const data = await loginApi(loginForm)
     userStore.setLoginData(data)
     ElMessage.success('登录成功')

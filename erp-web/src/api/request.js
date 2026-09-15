@@ -13,6 +13,12 @@ request.interceptors.request.use(config => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  const companyId = localStorage.getItem('currentCompanyId')
+  if (companyId) {
+    config.headers['Company-Id'] = companyId
+  }
+
   return config
 })
 
@@ -48,9 +54,14 @@ request.interceptors.response.use(
       } else {
         switch (error.response.status) {
           case 401:
-              ElMessage.error('登录已过期，请重新登录')
-              localStorage.removeItem('token')
-              window.location.href = '/login' //稳妥
+            if (error.config.url.includes('/login')) {
+              ElMessage.error(msg)
+              window.location.href = '/login' 
+            } else {
+                ElMessage.error('登录已过期，请重新登录')
+                localStorage.removeItem('token')
+                window.location.href = '/login' //稳妥
+            }
               break
           case 403:
             ElMessage.error('没有权限')

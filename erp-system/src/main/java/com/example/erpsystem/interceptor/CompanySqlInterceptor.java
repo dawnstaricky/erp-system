@@ -10,7 +10,9 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.SystemMetaObject;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -35,6 +37,65 @@ public class CompanySqlInterceptor implements Interceptor {
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
+        // 1. 拿到原始 SQL（通过 BoundSql，不碰 delegate）
+        StatementHandler handler = (StatementHandler) invocation.getTarget();
+        BoundSql boundSql = handler.getBoundSql();
+        String sql = boundSql.getSql();
+
+        System.out.println("[CompanySqlInterceptor] SQL: " + sql);
+
+        if (sql == null) {
+            return invocation.proceed();
+        }
+
+        String lower = sql.toLowerCase();
+        Long companyId = CompanyContext.getCompanyId();
+
+        // 管理员（companyId 为 null 或 0）不注入
+        if (companyId == null || companyId == 0) {
+            return invocation.proceed();
+        }
+
+        // 解析出操作的表名
+        String table = findTable(lower);
+        if (table == null || !TABLES.contains(table)) {
+            return invocation.proceed();
+        }
+
+        // 只对受管表注入
+        if (lower.contains("insert into " + table)) {
+            // INSERT：在列清单和 VALUES 中同步插入 company_id
+            String newSql = injectInsert(sql, companyId);
+            if (!newSql.equals(sql)) {
+                // 用标准反射设置 BoundSql 的 sql 字段（不碰 delegate）
+                Field field = BoundSql.class.getDeclaredField("sql");
+                field.setAccessible(true);
+                field.set(boundSql, newSql);
+            }
+        } else if (lower.contains(" where ") && !lower.contains("company_id")) {
+            // SELECT/UPDATE/DELETE：追加 WHERE company_id = ?
+            String newSql = injectWhere(sql, companyId);
+            if (!newSql.equals(sql)) {
+                Field field = BoundSql.class.getDeclaredField("sql");
+                field.setAccessible(true);
+                field.set(boundSql, newSql);
+                // 把 companyId 追加到参数对象，供新增的 ? 绑定
+                Object param = boundSql.getParameterObject();
+                // 仅当参数是 Map 时才追加，避免破坏 Bean 参数（Bean 由 XML 里 #{} 直接取属性）
+                if (param instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> map = (Map<String, Object>) param;
+                    map.put("companyId", companyId);
+                }
+                // 注意：若 XML 里 WHERE company_id = #{companyId}，则 map 里必须有 companyId
+            }
+        }
+
+        return invocation.proceed();
+    }
+
+    //@Override
+    public Object intercept_bak(Invocation invocation) throws Throwable {
         StatementHandler handler = (StatementHandler) invocation.getTarget();
         MetaObject meta = SystemMetaObject.forObject(handler);
         MappedStatement ms = (MappedStatement) meta.getValue("delegate.mappedStatement");
@@ -69,8 +130,29 @@ public class CompanySqlInterceptor implements Interceptor {
         return invocation.proceed();
     }
 
-    /** 极简表名提取（取第一个匹配的受管表名） */
     private String findTable(String lower) {
+        // 只在这些关键字后精确匹配白名单表名
+        String[] prefixes = {"from ", "update ", "insert into ", "delete from "};
+        for (String prefix : prefixes) {
+            int idx = lower.indexOf(prefix);
+            while (idx >= 0) {
+                int start = idx + prefix.length();
+                int end = start;
+                while (end < lower.length() && (Character.isLetterOrDigit(lower.charAt(end)) || lower.charAt(end) == '_')) {
+                    end++;
+                }
+                String tbl = lower.substring(start, end);
+                if (TABLES.contains(tbl)) {
+                    return tbl;
+                }
+                idx = lower.indexOf(prefix, idx + 1);
+            }
+        }
+        return null;
+    }
+
+    /** 极简表名提取（取第一个匹配的受管表名） */
+    private String findTable_bak(String lower) {
         for (String t : TABLES) {
             if (lower.contains(" " + t + " ") || lower.contains("\t" + t + "\t")
                     || lower.contains(" " + t + "(") || lower.contains(" " + t + "\n")

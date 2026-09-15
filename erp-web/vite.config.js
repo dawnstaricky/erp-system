@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
     resolve: {
-      alias: { '@': path.resolve(__dirname, './src') }
+      alias: { '@': '/src' }
     },
     base: '/',
     server: {
@@ -19,6 +19,8 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: 'http://localhost:8080',
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+          secure: false
         }
       } : undefined
     },

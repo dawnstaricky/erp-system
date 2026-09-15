@@ -17,8 +17,22 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String uri = request.getRequestURI();
+
         // 从请求头获取Token
         String token = request.getHeader(jwtUtil.getHeader());
+
+        // ===== 关键日志：JwtInterceptor 开始 =====
+        System.out.println("\n===== JwtInterceptor =====");
+        System.out.println("Request URI: " + uri);
+        System.out.println("Authorization Header: " + token);
+        System.out.println("Method: " + request.getMethod());
+        // ================================
+
+        if (uri.startsWith("/api/login")) {
+            System.out.println("JwtInterceptor: URI matched exclude list, return TRUE.\n");
+            //return true;
+        }
 
         // 如果Token是以"Bearer "开头，去掉前缀
         if (token != null && token.startsWith("Bearer ")) {
@@ -55,6 +69,7 @@ public class JwtInterceptor implements HandlerInterceptor {
         List<String> roles = jwtUtil.getRolesFromToken(token);
         request.setAttribute("roles", roles);
 
+        System.out.println("JwtInterceptor: Token validated successfully, set attributes, return TRUE.\n");
         return true;  // 放行
     }
 }
