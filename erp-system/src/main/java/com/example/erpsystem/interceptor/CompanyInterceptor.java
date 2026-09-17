@@ -77,6 +77,8 @@ public class CompanyInterceptor implements HandlerInterceptor {
     private boolean isExcluded(String uri) {
         return uri == null || uri.startsWith("/login") || uri.startsWith("/user/") || uri.startsWith("/sys/")
                 || uri.startsWith("/permission") || uri.startsWith("/role") || uri.startsWith("/operation-log")
+                || uri.startsWith("/dashboard")   // 新增：仪表盘
+                || uri.startsWith("/report")
                 || uri.equals("/") || uri.startsWith("/error");
     }
 

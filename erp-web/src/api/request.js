@@ -16,7 +16,7 @@ request.interceptors.request.use(config => {
 
   const companyId = localStorage.getItem('currentCompanyId')
   if (companyId) {
-    config.headers['Company-Id'] = companyId
+    config.headers['X-Company-Id'] = companyId
   }
 
   return config

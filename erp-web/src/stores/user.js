@@ -22,12 +22,21 @@ export const useUserStore = defineStore('user', () => {
     setUserInfo(userInfoData)
     // 默认选中第一家（管理员不自动选）
     if (userInfoData.companies.length && !(userInfoData.roles||[]).includes('ADMIN')) {
-      currentCompanyId.value = userInfoData.companies[0].companyId
+      //currentCompanyId.value = userInfoData.companies[0].companyId
+      const firstCompanyId = userInfoData.companies[0].companyId
+      currentCompanyId.value = firstCompanyId
+      // 必须立即写入 localStorage，否则 request.js 拦截器读不到
+      localStorage.setItem('currentCompanyId', firstCompanyId)
+      console.log('Default companyId set to:', firstCompanyId)
+    } else {
+      currentCompanyId.value = null
+      localStorage.removeItem('currentCompanyId')
     }
   }
 
   function setCurrentCompany(id) {
     currentCompanyId.value = id
+    localStorage.setItem('currentCompanyId', id)
     if (userInfo.value) {
       userInfo.value.currentCompanyId = id
       setUserInfo(userInfo.value)

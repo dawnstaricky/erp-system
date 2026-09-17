@@ -74,6 +74,7 @@ async function handleLogin() {
     localStorage.removeItem('currentCompanyId')
     const data = await loginApi(loginForm)
     userStore.setLoginData(data)
+    console.log('Login successful, currentCompanyId:', localStorage.getItem('currentCompanyId'));
     ElMessage.success('登录成功')
     router.push('/dashboard')
   } catch (e) {

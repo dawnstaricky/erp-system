@@ -32,7 +32,7 @@
         <template #default="{ row }">
           <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
           <el-button v-role="['ADMIN']" type="danger" link @click="handleDelete(row)">删除</el-button>
-          <el-button type="warning" link @click="openAssignRole(row)" v-role="['ADMIN']">分配角色</el-button>
+          <!-- <el-button type="warning" link @click="openAssignRole(row)" v-role="['ADMIN']">分配角色</el-button> -->
         </template>
       </el-table-column>
     </el-table>

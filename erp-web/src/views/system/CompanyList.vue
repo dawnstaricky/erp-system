@@ -40,7 +40,7 @@ import { pageCompanies, addCompany, updateCompany, deleteCompany } from '@/api/c
 const rows = ref([]), loading = ref(false), visible = ref(false)
 const blank = ()=>({id:null, companyCode:'', companyName:'', legalPerson:'', taxNumber:'', address:'', phone:'', bankName:'', bankAccount:'', status:'1'})
 const form = reactive(blank())
-async function search(){ loading.value=true; try{const r=await pageCompanies({pageNum:1,pageSize:100}); rows.value=r.data?.rows||r.rows||r.data||[]}finally{loading.value=false} }
+async function search(){ loading.value=true; try{const r=await pageCompanies({pageNum:1,pageSize:100}); rows.value=r.list||[]; console.log('Company list loaded:', rows.value.length)} catch (e) { console.error('Load company failed:', e)  } finally{loading.value=false} }
 function open(row){ Object.assign(form, blank(), row||{}); visible.value=true }
 async function submit(){ if(form.id){ await updateCompany(form) } else { await addCompany(form) }; ElMessage.success('保存成功'); visible.value=false; search() }
 async function del(row){ await ElMessageBox.confirm('确定删除该公司？','提示',{type:'warning'}); await deleteCompany(row.id); ElMessage.success('已删除'); search() }
