@@ -45,7 +45,7 @@
             <el-option v-for="c in allCompanies" :key="c.id" :label="c.companyName" :value="c.id" />
           </el-select>
           <el-select v-model="assign.roleId" placeholder="选择角色" style="margin-left: 10px">
-            <el-option v-for="r in allRoles" :key="r.id" :label="r.roleCode" :value="r.id" />
+            <el-option v-for="r in allRoles" :key="r.id" :label="r.roleName" :value="r.id" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -81,6 +81,7 @@ const userOptions = ref([])
 const allCompanies = ref([])
 const allRoles = ref([])
 const rows = ref([])
+const draft = ref([]) 
 const loading = ref(false)
 const keyword = ref('')
 
@@ -103,6 +104,7 @@ onMounted(async () => {
 // 用户切换时清空列表
 function handleUserChange() {
   rows.value = []
+  draft.value = []
 }
 
 // 加载该用户的分配关系
@@ -112,7 +114,8 @@ async function load() {
   try {
     const res = await getUserCompanies(selectedUserId.value)
     // 后端返回的是 List<UserCompanyRole>，需要补充 companyName 和 roleCode 显示
-    rows.value = res.map(item => {
+    const list = Array.isArray(res) ? res : (res.data || [])
+    rows.value = list.map(item => {
       const company = allCompanies.value.find(c => c.id === item.companyId)
       const role = allRoles.value.find(r => r.id === item.roleId)
       return {
@@ -133,23 +136,30 @@ function addOne() {
     return
   }
   // 检查重复
-  const exists = rows.value.find(
-    r => r.companyId === assign.companyId && r.roleId === assign.roleId
-  )
+  //const exists = rows.value.find(
+  //  r => r.companyId === assign.companyId && r.roleId === assign.roleId
+  //)
+  const exists = draft.value.find(d => d.companyId === assign.companyId && d.roleId === assign.roleId)
   if (exists) {
     ElMessage.warning('该用户在此公司已分配此角色')
     return
   }
   
-  const company = allCompanies.value.find(c => c.id === assign.companyId)
-  const role = allRoles.value.find(r => r.id === assign.roleId)
+  //const company = allCompanies.value.find(c => c.id === assign.companyId)
+  //const role = allRoles.value.find(r => r.id === assign.roleId)
   
-  rows.value.push({
+  //rows.value.push({
+  //  userId: selectedUserId.value,
+  //  companyId: assign.companyId,
+  //  roleId: assign.roleId,
+  //  companyName: company ? company.companyName : '',
+  //  roleCode: role ? role.roleCode : ''
+ //})
+
+  draft.value.push({
     userId: selectedUserId.value,
     companyId: assign.companyId,
-    roleId: assign.roleId,
-    companyName: company ? company.companyName : '',
-    roleCode: role ? role.roleCode : ''
+    roleId: assign.roleId
   })
   
   assign.companyId = null
@@ -159,16 +169,22 @@ function addOne() {
 // 提交保存
 async function submit() {
   if (!selectedUserId.value) return
-  if (rows.value.length === 0) {
+  //if (rows.value.length === 0) 
+  if (draft.value.length === 0)
+  {
     ElMessage.warning('请至少添加一条分配关系')
     return
   }
   
   // 只提交 userId, companyId, roleId
-  const submitData = rows.value.map(({ userId, companyId, roleId }) => ({
-    userId,
-    companyId,
-    roleId
+  //const submitData = rows.value.map(({ userId, companyId, roleId }) => ({
+  //  userId,
+  //  companyId,
+  //  roleId
+  //}))
+
+  const submitData = draft.value.map(({ userId, companyId, roleId }) => ({
+    userId, companyId, roleId
   }))
   
   await assignCompanies(selectedUserId.value, submitData)

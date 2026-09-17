@@ -23,7 +23,6 @@
     <select id="selectList" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM receipt
         <where>
-            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="orderId != null">AND order_id = #{orderId}</if>
             <if test="customerId != null">AND customer_id = #{customerId}</if>
         </where>

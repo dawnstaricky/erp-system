@@ -24,7 +24,6 @@
         SELECT <include refid="Base_Column_List"/>
         FROM warehouse
         <where>
-            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="keyword != null and keyword != ''">
                 AND (warehouse_name LIKE CONCAT('%', #{keyword}, '%')
                 OR warehouse_code LIKE CONCAT('%', #{keyword}, '%')

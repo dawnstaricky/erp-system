@@ -149,6 +149,7 @@
                 @click="handleStockIn(row.id)">
                 入库
               </el-button>
+              <!-- <el-button size="small" @click="downContract(row.id)">下载合同</el-button> -->
             </template>
           </el-table-column>
         </el-table>
@@ -273,6 +274,10 @@ const openDetailDialog = async (row) => {
   } catch (e) {
     ElMessage.error(e.message || '加载详情失败')
   }
+}
+
+const downContract = (id) => {
+  window.open(`/api/contract/purchase/${id}/download`, '_blank')
 }
 
 // ✅ 新增导出功能（对接后端已集成的接口）

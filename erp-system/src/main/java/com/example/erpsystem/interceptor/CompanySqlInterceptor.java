@@ -52,7 +52,12 @@ public class CompanySqlInterceptor implements Interceptor {
         Long companyId = CompanyContext.getCompanyId();
 
         // 管理员（companyId 为 null 或 0）不注入
-        if (companyId == null || companyId == 0) {
+        if (companyId == null || companyId == 0 || CompanyContext.isAdmin()) {
+            return invocation.proceed();
+        }
+
+        // 防止 SQL 注入
+        if (!String.valueOf(companyId).matches("\\d+")) {
             return invocation.proceed();
         }
 
@@ -72,23 +77,38 @@ public class CompanySqlInterceptor implements Interceptor {
                 field.setAccessible(true);
                 field.set(boundSql, newSql);
             }
-        } else if (lower.contains(" where ") && !lower.contains("company_id")) {
-            // SELECT/UPDATE/DELETE：追加 WHERE company_id = ?
-            String newSql = injectWhere(sql, companyId);
-            if (!newSql.equals(sql)) {
-                Field field = BoundSql.class.getDeclaredField("sql");
-                field.setAccessible(true);
-                field.set(boundSql, newSql);
-                // 把 companyId 追加到参数对象，供新增的 ? 绑定
-                Object param = boundSql.getParameterObject();
-                // 仅当参数是 Map 时才追加，避免破坏 Bean 参数（Bean 由 XML 里 #{} 直接取属性）
-                if (param instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> map = (Map<String, Object>) param;
-                    map.put("companyId", companyId);
-                }
-                // 注意：若 XML 里 WHERE company_id = #{companyId}，则 map 里必须有 companyId
+        }
+//        else if (lower.contains(" where ") && !lower.contains("company_id")) {
+//            // SELECT/UPDATE/DELETE：追加 WHERE company_id = ?
+//            String newSql = injectWhere(sql, companyId);
+//            if (!newSql.equals(sql)) {
+//                Field field = BoundSql.class.getDeclaredField("sql");
+//                field.setAccessible(true);
+//                field.set(boundSql, newSql);
+//                // 把 companyId 追加到参数对象，供新增的 ? 绑定
+//                Object param = boundSql.getParameterObject();
+//                // 仅当参数是 Map 时才追加，避免破坏 Bean 参数（Bean 由 XML 里 #{} 直接取属性）
+//                if (param instanceof Map) {
+//                    @SuppressWarnings("unchecked")
+//                    Map<String, Object> map = (Map<String, Object>) param;
+//                    map.put("companyId", companyId);
+//                }
+//                // 注意：若 XML 里 WHERE company_id = #{companyId}，则 map 里必须有 companyId
+//            }
+//        }
+        else if (lower.contains(" where ") && !lower.contains("company_id")) {
+            // SELECT/UPDATE/DELETE：追加 WHERE company_id = companyId（直接拼接值，不用?）
+            String condition = " company_id = " + companyId;
+            String newSql;
+            if (lower.contains("where")) {
+                newSql = sql.replaceFirst("(?i)where", "where " + condition + " and ");
+            } else {
+                newSql = sql + " where " + condition;
             }
+            Field field = BoundSql.class.getDeclaredField("sql");
+            field.setAccessible(true);
+            field.set(boundSql, newSql);
+            // 注意：不再往参数 Map 里放 companyId，因为 SQL 里没有 ? 了
         }
 
         return invocation.proceed();

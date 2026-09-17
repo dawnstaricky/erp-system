@@ -26,7 +26,6 @@
     <select id="selectList" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM sales_contract
         <where>
-            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="customerId != null">AND customer_id = #{customerId}</if>
             <if test="contractNo != null and contractNo != ''">AND contract_no LIKE CONCAT('%',#{contractNo},'%')</if>
         </where>

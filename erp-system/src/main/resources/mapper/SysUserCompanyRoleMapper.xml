@@ -9,7 +9,7 @@
         <result column="role_code" property="roleCode"/>
         <result column="company_name" property="companyName"/>
     </resultMap>
-    <select id="selectCompaniesByUserId" resultMap="BaseResultMap">
+    <select id="selectCompaniesByUserId" resultType="com.example.erpsystem.dto.UserCompanyRoleDTO">
         SELECT ucr.company_id AS companyId, c.company_name AS companyName,
                ucr.role_id AS roleId, r.role_code AS roleCode
         FROM sys_user_company_role ucr

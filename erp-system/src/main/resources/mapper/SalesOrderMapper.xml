@@ -32,7 +32,7 @@
     </update>
 
     <select id="selectOrderById" resultType="com.example.erpsystem.entity.SalesOrder">
-        SELECT * FROM sales_order WHERE id = #{id} AND company_id = #{companyId}
+        SELECT * FROM sales_order WHERE id = #{id}
     </select>
 
     <select id="generateOrderNo" resultType="String">
@@ -104,9 +104,6 @@
         <if test="orderNo != null and orderNo != ''">
             AND so.order_no LIKE CONCAT('%', #{orderNo}, '%')
         </if>
-        <if test="companyId != null">
-            AND so.company_id = #{companyId}
-        </if>
         ORDER BY so.created_at DESC
         LIMIT #{offset}, #{pageSize}
     </select>
@@ -117,9 +114,6 @@
         WHERE 1=1
         <if test="orderNo != null and orderNo != ''">
             AND so.order_no LIKE CONCAT('%', #{orderNo}, '%')
-        </if>
-        <if test="companyId != null">
-            AND so.company_id = #{companyId}
         </if>
     </select>
 

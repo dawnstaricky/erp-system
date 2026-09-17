@@ -31,7 +31,6 @@
     <select id="selectList" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM quality_dispute
         <where>
-            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="disputeType != null">AND dispute_type = #{disputeType}</if>
             <if test="status != null">AND status = #{status}</if>
         </where>

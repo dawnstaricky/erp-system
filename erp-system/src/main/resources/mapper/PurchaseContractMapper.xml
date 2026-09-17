@@ -26,7 +26,6 @@
     <select id="selectList" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM purchase_contract
         <where>
-            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="orderId != null">AND order_id = #{orderId}</if>
             <if test="status != null">
                 AND status = #{status}

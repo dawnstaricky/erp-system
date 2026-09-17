@@ -21,11 +21,10 @@
     </resultMap>
 
     <sql id="Base_Column_List">id,company_id,order_id,order_no,customer_id,purchase_done,sale_draft_done,outbound_done,invoice_done,receipt_done,is_archived,archived_at,auto_unarchived,unarchive_reason,created_at,updated_at</sql>
-    <select id="selectByOrderId" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM business_archive WHERE company_id=#{companyId} AND order_id=#{orderId}</select>
+    <select id="selectByOrderId" resultMap="BaseResultMap">SELECT <include refid="Base_Column_List"/> FROM business_archive WHERE  order_id=#{orderId}</select>
     <select id="selectList" resultMap="BaseResultMap">
         SELECT <include refid="Base_Column_List"/> FROM business_archive
         <where>
-            <if test="companyId != null">AND company_id = #{companyId}</if>
             <if test="isArchived != null">AND is_archived = #{isArchived}</if>
         </where>
         ORDER BY updated_at DESC
