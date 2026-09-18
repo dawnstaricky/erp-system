@@ -30,11 +30,6 @@
       <el-table :data="rows" v-loading="loading" border style="margin-top: 20px">
         <el-table-column prop="companyName" label="公司名称" />
         <el-table-column prop="roleCode" label="角色编码" />
-        <el-table-column label="操作" width="100">
-          <template #default="{ $index }">
-            <el-button size="small" type="danger" @click="rows.splice($index, 1)">移除</el-button>
-          </template>
-        </el-table-column>
       </el-table>
 
       <!-- 3. 新增分配 -->
@@ -54,10 +49,15 @@
       </el-form>
 
       <!-- 4. 草稿列表 -->
-      <el-table :data="rows" border size="small" style="margin-top: 12px">
-        <el-table-column prop="companyId" label="公司ID" />
-        <el-table-column prop="roleId" label="角色ID" />
-      </el-table>
+      <el-table :data="draft" border size="small" style="margin-top: 12px">
+      <el-table-column prop="companyName" label="公司名称" />
+      <el-table-column prop="roleCode" label="角色编码" />
+      <el-table-column label="操作" width="100">
+        <template #default="{row}">
+          <el-button size="small" type="danger" @click="removeDraft(row)">移除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
 
       <!-- 5. 提交 -->
       <div style="margin-top: 20px">
@@ -144,9 +144,23 @@ function addOne() {
     ElMessage.warning('该用户在此公司已分配此角色')
     return
   }
+
+  // 检查是否已存在于已分配列表中
+  const existsInRows = rows.value.find(r => r.companyId === assign.companyId && r.roleId === assign.roleId)
+  if (existsInRows) {
+    ElMessage.warning('该用户已有此公司角色分配')
+    return
+  }
+
+  // 检查是否已存在于草稿中
+  const existsInDraft = draft.value.find(d => d.companyId === assign.companyId && d.roleId === assign.roleId)
+  if (existsInDraft) {
+    ElMessage.warning('已在待提交列表中')
+    return
+  }
   
-  //const company = allCompanies.value.find(c => c.id === assign.companyId)
-  //const role = allRoles.value.find(r => r.id === assign.roleId)
+  const company = allCompanies.value.find(c => c.id === assign.companyId)
+  const role = allRoles.value.find(r => r.id === assign.roleId)
   
   //rows.value.push({
   //  userId: selectedUserId.value,
@@ -159,11 +173,18 @@ function addOne() {
   draft.value.push({
     userId: selectedUserId.value,
     companyId: assign.companyId,
-    roleId: assign.roleId
+    companyName: company ? company.companyName : '',
+    roleId: assign.roleId,
+    roleCode: role ? role.roleCode : ''
   })
   
   assign.companyId = null
   assign.roleId = null
+}
+
+function removeDraft(row) {
+  const idx = draft.value.findIndex(d => d.companyId === row.companyId && d.roleId === row.roleId)
+  if (idx !== -1) draft.value.splice(idx, 1)
 }
 
 // 提交保存
@@ -183,9 +204,17 @@ async function submit() {
   //  roleId
   //}))
 
-  const submitData = draft.value.map(({ userId, companyId, roleId }) => ({
-    userId, companyId, roleId
+  const all=[...rows.value,...draft.value].map(r=>({
+    userId:selectedUserId.value,
+    companyId:r.companyId,
+    roleId:r.roleId
   }))
+  // 去重
+  const submitData=[...new Map(all.map(x=>[x.companyId+'_'+x.roleId,x])).values()]
+
+  //const submitData = draft.value.map(({ userId, companyId, roleId }) => ({
+  //  userId, companyId, roleId
+  //}))
   
   await assignCompanies(selectedUserId.value, submitData)
   ElMessage.success('保存成功')

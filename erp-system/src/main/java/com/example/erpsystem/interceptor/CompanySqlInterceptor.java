@@ -99,6 +99,19 @@ public class CompanySqlInterceptor implements Interceptor {
         else if (lower.contains(" where ") && !lower.contains("company_id")) {
             // SELECT/UPDATE/DELETE：追加 WHERE company_id = companyId（直接拼接值，不用?）
             String condition = " company_id = " + companyId;
+
+            // 如果是报表类 SQL（多表 JOIN），需要指定主表别名
+            if (lower.contains("from sales_order") || lower.contains("from purchase_order")) {
+                // 根据主表设置别名
+                if (lower.contains("sales_order so")) {
+                    condition = " so.company_id = " + companyId;
+                } else if (lower.contains("purchase_order po")) {
+                    condition = " po.company_id = " + companyId;
+                } else if (lower.contains("sales_order_item soi")) {
+                    condition = " soi.company_id = " + companyId;
+                }
+            }
+
             String newSql;
             if (lower.contains("where")) {
                 newSql = sql.replaceFirst("(?i)where", "where " + condition + " and ");
